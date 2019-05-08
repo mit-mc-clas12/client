@@ -1,0 +1,13 @@
+group:  rgaDIS                                        # project description
+farm_name:  MIT_Tier2                                 # computer pool for job to run on
+nevents:  1000                                        # number of events each job
+generator: clasdis                                    # one of clasdis, dvcs, disrad
+genOptions:  --t 20 25                                # generator option
+gcards: https://userweb.jlab.org/~ungaro/tmp/gcards/  # gcard gemc option
+jobs: 15                                              # number of jobs
+project:  osg.clas12MC                                # OSG project
+luminosity:  0                                        # percent of 10^35 luminosity from 0 to 100
+tcurrent: -50                                         # percent of torus current from -100 to 100
+pcurrent: -100                                        # percent of solenoid current from -100 to 100
+cores_req: 2                                          # number of cores to request from node
+mem_req: 2                                            # GB of RAM to request from node. Currently set to 4 for testing purposes
