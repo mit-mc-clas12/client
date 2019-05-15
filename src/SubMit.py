@@ -53,6 +53,10 @@ def Batch_Entry(scard_file):
     strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('User',username,BatchID)
     utils.sql3_exec(strn)
 
+    strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('runstatus','Not Submitted',BatchID)
+    utils.sql3_exec(strn)
+
+
     return 0
 
 if __name__ == "__main__":

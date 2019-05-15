@@ -1,5 +1,5 @@
 group:  rgaDIS                                        # project description
-farm_name:  MIT_Tier2                                 # computer pool for job to run on
+farm_name: MIT_Tier2                                 # computer pool for job to run on
 nevents:  100                                         # number of events each job
 generator: clasdis                                    # one of clasdis, dvcs, disrad
 genOptions:  --t 20 25                                # generator option
