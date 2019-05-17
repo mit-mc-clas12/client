@@ -84,7 +84,7 @@ if __name__ == "__main__":
   file_struct.DEBUG = getattr(args,file_struct.debug_long)
 
 
-  exists = os.path.isfile(file_struct.DB_path+file_struct.DBname)
+  exists = os.path.isfile(file_struct.DB_path+file_struct.DB_name)
   if exists:
       Batch_Entry(args.scard)
   else:
