@@ -53,9 +53,20 @@ def Batch_Entry(scard_file):
     strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('User',username,BatchID)
     utils.sql3_exec(strn)
 
-    strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('runstatus','Not Submitted',BatchID)
-    utils.sql3_exec(strn)
 
+#    strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('runstatus','Not Submitted',BatchID)
+#    utils.sql3_exec(strn)
+
+    strn = "SELECT GcardID, gcard_text FROM GCards WHERE BatchID = {0};".format(BatchID)
+    gcards = utils.sql3_grab(strn)
+    for gcard in gcards:
+      GcardID = gcard[0]
+      strn = "INSERT INTO Submissions(BatchID,GcardID) VALUES ({0},{1});".format(BatchID,GcardID)
+      utils.sql3_exec(strn)
+      strn = "UPDATE Submissions SET submission_pool = '{0}' WHERE GcardID = '{1}';".format(scard_fields.data['farm_name'],GcardID)
+      utils.sql3_exec(strn)
+      strn = "UPDATE Submissions SET run_status = 'Not Submitted' WHERE GcardID = '{0}';".format(GcardID)
+      utils.sql3_exec(strn)
 
     return 0
 
