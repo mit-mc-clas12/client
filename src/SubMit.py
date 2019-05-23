@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 #****************************************************************
 """
 # This is the submission script for use on the client side. Takes in an scard.txt file.
