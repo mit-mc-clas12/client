@@ -42,8 +42,15 @@ def Batch_Entry(scard_file):
     utils.printer("Writing SCard to Database")
     scard_fields.data['group_name'] = scard_fields.data.pop('group') #'group' is a protected word in SQL so we can't use the field title "group"
     # For more information on protected words in SQL, see https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls?KEY=RSQL_reservedwords
-    scard_fields.data['genExecutable'] = file_struct.genExecutable.get(scard_fields.data.get('generator'))
-    scard_fields.data['genOutput'] = file_struct.genOutput.get(scard_fields.data.get('generator'))
+
+    if 'https://' in scard_fields.data.get('generator'):
+      print("Online repository for generator files specified; will download on server")
+      scard_fields.data['genExecutable'] = "Null"
+      scard_fields.data['genOutput'] = "Null"
+    else:
+      scard_fields.data['genExecutable'] = file_struct.genExecutable.get(scard_fields.data.get('generator'))
+      scard_fields.data['genOutput'] = file_struct.genOutput.get(scard_fields.data.get('generator'))
+
     scard_helper.SCard_Entry(BatchID,timestamp,scard_fields.data)
     print('\t Your scard has been read into the database with BatchID = {0} at {1} \n'.format(BatchID,timestamp))
 
@@ -53,10 +60,6 @@ def Batch_Entry(scard_file):
     print("Successfully added gcards to database")
     strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('User',username,BatchID)
     utils.sql3_exec(strn)
-
-
-#    strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('runstatus','Not Submitted',BatchID)
-#    utils.sql3_exec(strn)
 
     strn = "SELECT GcardID, gcard_text FROM GCards WHERE BatchID = {0};".format(BatchID)
     gcards = utils.sql3_grab(strn)
@@ -73,8 +76,10 @@ def Batch_Entry(scard_file):
 
 if __name__ == "__main__":
   argparser = argparse.ArgumentParser()
-  argparser.add_argument('scard',default=file_struct.scard_path+file_struct.scard_name,nargs='?',
-                          help = 'relative path and name scard you want to submit, e.g. ../scard.txt')
+  # The below is commented out because we now want to make scards mandatory, if we change this we can uncomment the next two lines
+  #argparser.add_argument('scard',default=file_struct.scard_path+file_struct.scard_name,nargs='?',
+  #                        help = 'relative path and name scard you want to submit, e.g. ../scard.txt')
+  argparser.add_argument('scard',help = 'relative path and name scard you want to submit, e.g. ../scard.txt')
   argparser.add_argument(file_struct.debug_short,file_struct.debug_longdash,
                       default = file_struct.debug_default,help = file_struct.debug_help)
   args = argparser.parse_args()
@@ -84,10 +89,16 @@ if __name__ == "__main__":
 
   file_struct.DEBUG = getattr(args,file_struct.debug_long)
 
-
   exists = os.path.isfile(file_struct.DB_path+file_struct.DB_name)
-  if exists:
-      Batch_Entry(args.scard)
+
+  print(args.scard)
+  if args.scard:
+    if exists:
+        Batch_Entry(args.scard)
+    else:
+        print('Could not find SQLite Database File. Are you sure it exists and lives in the proper location? Consult README for help')
+        exit()
   else:
-      print('Could not find SQLite Database File. Are you sure it exists and lives in the proper location? Consult README for help')
-      exit()
+    print('SubMit.py requires an scard.txt file to submit a job. You can find an example listed in the documentation \n')
+    print('Proper usage is `SubMit.py <name of scard file>` e.g. `SubMit.py scard.txt`')
+    exit()
