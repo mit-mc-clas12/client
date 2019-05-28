@@ -1,7 +1,7 @@
 group:  rgaDIS                                        # project description
 farm_name:  MIT_Tier2                                 # computer pool for job to run on
 nevents:  1000                                        # number of events each job
-generator: clasdis                                    # one of clasdis, dvcs, disrad
+generator: https://userweb.jlab.org/~ungaro/lund/     # one of clasdis, dvcs, disrad
 genOptions:  --t 20 25                                # generator option
 gcards: https://userweb.jlab.org/~ungaro/tmp/gcards/  # gcard gemc option
 jobs: 15                                              # number of jobs

@@ -42,8 +42,15 @@ def Batch_Entry(scard_file):
     utils.printer("Writing SCard to Database")
     scard_fields.data['group_name'] = scard_fields.data.pop('group') #'group' is a protected word in SQL so we can't use the field title "group"
     # For more information on protected words in SQL, see https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls?KEY=RSQL_reservedwords
-    scard_fields.data['genExecutable'] = file_struct.genExecutable.get(scard_fields.data.get('generator'))
-    scard_fields.data['genOutput'] = file_struct.genOutput.get(scard_fields.data.get('generator'))
+
+    if 'https://' in scard_fields.data.get('generator'):
+      print("Online repository for generator files specified; will download on server")
+      scard_fields.data['genExecutable'] = """NEED TO DEFINE A VALUE FOR THIS FIELD"""
+      scard_fields.data['genOutput'] = """NEED TO DEFINE A VALUE FOR THIS FIELD"""
+    else:
+      scard_fields.data['genExecutable'] = file_struct.genExecutable.get(scard_fields.data.get('generator'))
+      scard_fields.data['genOutput'] = file_struct.genOutput.get(scard_fields.data.get('generator'))
+
     scard_helper.SCard_Entry(BatchID,timestamp,scard_fields.data)
     print('\t Your scard has been read into the database with BatchID = {0} at {1} \n'.format(BatchID,timestamp))
 
