@@ -46,10 +46,13 @@ def Batch_Entry(args):
     if 'https://' in scard_fields.data.get('generator'):
       print("Online repository for generator files specified; will download on server")
       scard_fields.data['genExecutable'] = "Null"
-      scard_fields.data['genOutput'] = "Null"
+      scard_fields.data['genOutput']     = "Null"
+      scard_fields.data['genOptions']    = "Null"
+      scard_fields.data['nevents']       = "User Lund File Driven"
+      scard_fields.data['jobs']          = "One per User Lund File"
     else:
       scard_fields.data['genExecutable'] = file_struct.genExecutable.get(scard_fields.data.get('generator'))
-      scard_fields.data['genOutput'] = file_struct.genOutput.get(scard_fields.data.get('generator'))
+      scard_fields.data['genOutput']     = file_struct.genOutput.get(scard_fields.data.get('generator'))
 
     scard_helper.SCard_Entry(BatchID,timestamp,scard_fields.data)
     print('\t Your scard has been read into the database with BatchID = {0} at {1} \n'.format(BatchID,timestamp))

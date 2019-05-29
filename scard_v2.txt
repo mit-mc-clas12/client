@@ -1,13 +1,11 @@
-group:  rgaDIS                                        # project description
-farm_name:  MIT_Tier2                                 # computer pool for job to run on
-nevents:  1000                                        # number of events each job
-generator: https://userweb.jlab.org/~ungaro/lund/     # one of clasdis, dvcs, disrad
-genOptions:  --t 20 25                                # generator option
-gcards: https://userweb.jlab.org/~ungaro/tmp/gcards/  # gcard gemc option
-jobs: 15                                              # number of jobs
 project:  osg.clas12MC                                # OSG project
-luminosity:  0                                        # percent of 10^35 luminosity from 0 to 100
-tcurrent: -50                                         # percent of torus current from -100 to 100
-pcurrent: -100                                        # percent of solenoid current from -100 to 100
-cores_req: 2                                          # number of cores to request from node
-mem_req: 2                                            # GB of RAM to request from node. Currently set to 4 for testing purposes
+group:  rgaDIS                                        # project description
+farm_name: OSG                                        # farm pool
+generator: https://userweb.jlab.org/~ungaro/lund/     # one of clasdis, dvcs, disrad. Alternatively, the online public accessible location of user lund files.
+gcards: https://userweb.jlab.org/~ungaro/tmp/gcards/  # gcard, or online public accessible location of user gcards. If online address, there will be a submission for each gcard at that address
+luminosity:  0                                        # percent of 10^35 luminosity
+tcurrent: -1.0                                        # torus field scale
+pcurrent: -1.0                                        # solenoid field scale
+cores_req: 1                                          # number of cores to request from node
+mem_req: 2                                            # GB of RAM to request from node. 
+jobs: 1                                               # number of jobs for each submission. This entry is ignored if lund files are used. In that case, theres is exactly one job / file
