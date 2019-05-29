@@ -20,11 +20,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))+'/../../')
 #sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from utils import file_struct, gcard_helper, scard_helper, user_validation, utils
 
-def Batch_Entry(scard_file):
+def Batch_Entry(args):
     timestamp = utils.gettime() # Can modify this if need 10ths of seconds or more resolution
-    #Assign a user and a timestamp for a given batch
     strn = """INSERT INTO Batches(timestamp) VALUES ("{0}");""".format(timestamp)
     BatchID = utils.sql3_exec(strn)
+    scard_file = args.scard
 
     #Write the text contained in scard.txt to a field in the Batches table
     with open(scard_file, 'r') as file: scard = file.read()
@@ -76,25 +76,22 @@ def Batch_Entry(scard_file):
 
 if __name__ == "__main__":
   argparser = argparse.ArgumentParser()
-  # The below is commented out because we now want to make scards mandatory, if we change this we can uncomment the next two lines
-  #argparser.add_argument('scard',default=file_struct.scard_path+file_struct.scard_name,nargs='?',
-  #                        help = 'relative path and name scard you want to submit, e.g. ../scard.txt')
   argparser.add_argument('scard',help = 'relative path and name scard you want to submit, e.g. ../scard.txt')
-  argparser.add_argument(file_struct.debug_short,file_struct.debug_longdash,
-                      default = file_struct.debug_default,help = file_struct.debug_help)
+  argparser.add_argument(file_struct.debug_short,file_struct.debug_longdash, default = file_struct.debug_default,help = file_struct.debug_help)
+  argparser.add_argument('-m','--mysql',help = "use -m or --mysql to connect to mysql DB, otherwise use SQLite DB", action = 'store_true')
   args = argparser.parse_args()
 
-  dirname = os.path.dirname(__file__)
-  if dirname == '': dirname = '.'
-
   file_struct.DEBUG = getattr(args,file_struct.debug_long)
+  file_struct.use_mysql = args.mysql
 
-  exists = os.path.isfile(file_struct.DB_path+file_struct.DB_name)
+  if args.mysql:
+    exists = """insert some connection to mysql db test"""
+  else:
+    exists = os.path.isfile(file_struct.SQLite_DB_path+file_struct.DB_name)
 
-  print(args.scard)
   if args.scard:
     if exists:
-        Batch_Entry(args.scard)
+        Batch_Entry(args)
     else:
         print('Could not find SQLite Database File. Are you sure it exists and lives in the proper location? Consult README for help')
         exit()
