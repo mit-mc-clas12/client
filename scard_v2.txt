@@ -3,6 +3,7 @@ group:  rgaDIS                                        # project description
 farm_name: OSG                                        # farm pool
 generator: https://userweb.jlab.org/~ungaro/lund/     # one of clasdis, dvcs, disrad. Alternatively, the online public accessible location of user lund files.
 gcards: https://userweb.jlab.org/~ungaro/tmp/gcards/  # gcard, or online public accessible location of user gcards. If online address, there will be a submission for each gcard at that address
+nevents: 777					      # remove this after testing
 luminosity:  0                                        # percent of 10^35 luminosity
 tcurrent: -1.0                                        # torus field scale
 pcurrent: -1.0                                        # solenoid field scale
