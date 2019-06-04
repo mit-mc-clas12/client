@@ -1,4 +1,4 @@
-project:  osg.clas12MC                                # OSG project
+project:  osg.clas12MC                                # project name
 group:  rgaDIS                                        # project description
 farm_name: OSG                                        # farm pool
 generator: clasdis                                    # one of clasdis, dvcs, disrad. Alternatively, the online public accessible location of user lund files.
