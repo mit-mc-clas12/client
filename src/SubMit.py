@@ -57,14 +57,21 @@ def Batch_Entry(args):
     scard_helper.SCard_Entry(BatchID,timestamp,scard_fields.data)
     print('\t Your scard has been read into the database with BatchID = {0} at {1} \n'.format(BatchID,timestamp))
 
+
+    strn = "SELECT UserID FROM Users WHERE User = '{}';".format(username)
+    userid = utils.sql3_grab(strn)[0][0]
     #Write gcards into gcards table
     utils.printer("Writing GCards to Database")
     gcard_helper.GCard_Entry(BatchID,timestamp,scard_fields.data['gcards'])
     print("Successfully added gcards to database")
+    strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('UserID',userid,BatchID)
+    utils.sql3_exec(strn)
+
     strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('User',username,BatchID)
     utils.sql3_exec(strn)
 
-    strn = "SELECT GcardID, gcard_text FROM GCards WHERE BatchID = {0};".format(BatchID)
+
+    strn = "SELECT GcardID, gcard_text FROM Gcards WHERE BatchID = {0};".format(BatchID)
     gcards = utils.sql3_grab(strn)
     for gcard in gcards:
       GcardID = gcard[0]
@@ -81,13 +88,13 @@ if __name__ == "__main__":
   argparser = argparse.ArgumentParser()
   argparser.add_argument('scard',help = 'relative path and name scard you want to submit, e.g. ../scard.txt')
   argparser.add_argument(file_struct.debug_short,file_struct.debug_longdash, default = file_struct.debug_default,help = file_struct.debug_help)
-  argparser.add_argument('-m','--mysql',help = "use -m or --mysql to connect to mysql DB, otherwise use SQLite DB", action = 'store_true')
+  argparser.add_argument('-l','--lite',help = "use -l or --lite to connect to sqlite DB, otherwise use MySQL DB", action = 'store_false')
   args = argparser.parse_args()
 
   file_struct.DEBUG = getattr(args,file_struct.debug_long)
-  file_struct.use_mysql = args.mysql
+  file_struct.use_mysql = args.lite
 
-  if args.mysql:
+  if args.lite:
     exists = """insert some connection to mysql db test"""
   else:
     exists = os.path.isfile(file_struct.SQLite_DB_path+file_struct.DB_name)
