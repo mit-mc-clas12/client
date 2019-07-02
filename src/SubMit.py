@@ -18,7 +18,7 @@ from subprocess import PIPE, Popen
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))+'/../../')
 #Could also do the following, but then python has to search the
 #sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from utils import file_struct, gcard_helper, scard_helper, user_validation, utils
+from utils import file_struct, gcard_helper, get_args, scard_helper, user_validation, utils
 
 def Batch_Entry(args):
     timestamp = utils.gettime() # Can modify this if need 10ths of seconds or more resolution
@@ -85,20 +85,12 @@ def Batch_Entry(args):
     return 0
 
 if __name__ == "__main__":
-  argparser = argparse.ArgumentParser()
-  argparser.add_argument('scard',help = 'relative path and name scard you want to submit, e.g. ../scard.txt')
-  argparser.add_argument(file_struct.debug_short,file_struct.debug_longdash, default = file_struct.debug_default,help = file_struct.debug_help)
-  argparser.add_argument('-l','--lite',help = "use -l or --lite to connect to sqlite DB, otherwise use MySQL DB", action = 'store_true')
-  args = argparser.parse_args()
-
-  file_struct.DEBUG = getattr(args,file_struct.debug_long)
-  file_struct.use_mysql = not args.lite
+  args = get_args.get_args()
 
   if args.lite:
     exists = os.path.isfile(file_struct.SQLite_DB_path+file_struct.DB_name)
   else:
     exists = """insert some connection to mysql db test"""
-
 
   if args.scard:
     if exists:
