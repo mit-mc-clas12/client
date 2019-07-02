@@ -88,16 +88,17 @@ if __name__ == "__main__":
   argparser = argparse.ArgumentParser()
   argparser.add_argument('scard',help = 'relative path and name scard you want to submit, e.g. ../scard.txt')
   argparser.add_argument(file_struct.debug_short,file_struct.debug_longdash, default = file_struct.debug_default,help = file_struct.debug_help)
-  argparser.add_argument('-l','--lite',help = "use -l or --lite to connect to sqlite DB, otherwise use MySQL DB", action = 'store_false')
+  argparser.add_argument('-l','--lite',help = "use -l or --lite to connect to sqlite DB, otherwise use MySQL DB", action = 'store_true')
   args = argparser.parse_args()
 
   file_struct.DEBUG = getattr(args,file_struct.debug_long)
-  file_struct.use_mysql = args.lite
+  file_struct.use_mysql = not args.lite
 
   if args.lite:
-    exists = """insert some connection to mysql db test"""
-  else:
     exists = os.path.isfile(file_struct.SQLite_DB_path+file_struct.DB_name)
+  else:
+    exists = """insert some connection to mysql db test"""
+
 
   if args.scard:
     if exists:
