@@ -1,0 +1,11 @@
+project:  osg.clas12MC                              		            	# project name
+group:  rgaDIS                                       			    	# project description
+farm_name: OSG                                       			    	# farm pool
+generator:  https://userweb.jlab.org/~ungaro/lund/			     	# one of clasdis, dvcs, disrad. Alternatively, the online public accessible location of user lund files.					
+gcards: http://www.lions.odu.edu/~lweinste/MCfiles/gcard/band_beam4-4.gcard 	# gcard, or online public accessible location of user gcards. If online address, there will be a submission for each gcard at that address
+luminosity:  0                                        				# percent of 10^35 luminosity
+tcurrent: -1.0                                        				# torus field scale
+pcurrent: -1.0                                        				# solenoid field scale
+cores_req: 1                                          				# number of cores to request from node
+mem_req: 2                                            				# GB of RAM to request from node. 
+jobs: 1                                               				# number of jobs for each submission. This entry is ignored if lund files are used. In that case, theres is exactly one job / file
