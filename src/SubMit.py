@@ -58,7 +58,7 @@ def Batch_Entry(args):
     print('\t Your scard has been read into the database with BatchID = {0} at {1} \n'.format(BatchID,timestamp))
 
 
-    strn = "SELECT UserID FROM Users WHERE User = '{}';".format(username)
+    strn = "SELECT UserID FROM Users WHERE User = '{0}';".format(username)
     userid = utils.sql3_grab(strn)[0][0]
     #Write gcards into gcards table
     utils.printer("Writing GCards to Database")
