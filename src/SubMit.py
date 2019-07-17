@@ -43,8 +43,9 @@ def Batch_Entry(args):
     scard_fields.data['group_name'] = scard_fields.data.pop('group') #'group' is a protected word in SQL so we can't use the field title "group"
     # For more information on protected words in SQL, see https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls?KEY=RSQL_reservedwords
 
-    if 'https://' in scard_fields.data.get('generator'):
-      print("Online repository for generator files specified; will download on server")
+    if 'http' in scard_fields.data.get('generator'):
+      print("Online repository for generator files specified. On server will download LUND files from:")
+      print("{0}".format(scard_fields.data.get('generator')))
       scard_fields.data['genExecutable'] = "Null"
       scard_fields.data['genOutput']     = "Null"
       scard_fields.data['genOptions']    = "Null"
