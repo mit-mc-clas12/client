@@ -2,7 +2,7 @@ project:  osg.clas12MC                    # project name
 group:  rgaDIS                            # project description
 farm_name: OSG                            # farm pool
 generator: clasdis    	                  # one of clasdis, dvcs, disrad. Alternatively, the online public accessible location of user lund files.
-gcards: clas12.gcard	                     # gcard, or online public accessible location of user gcards. If online address, there will be a submission for each gcard at that address
+gcards: /jlab/work/clas12.gcard           # gcard, or online public accessible location of user gcards. If online address, there will be a submission for each gcard at that address
 nevents: 100                              # run 100 events, this include the generator
 genOptions: --t 10 15                     # clasdis options: theta between 10 and 15 degrees
 luminosity:  0                            # percent of 10^35 luminosity
