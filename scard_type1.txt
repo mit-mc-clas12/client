@@ -10,4 +10,4 @@ tcurrent: -1.0                            # torus field scale
 pcurrent: -1.0                            # solenoid field scale
 cores_req: 1                              # number of cores to request from node
 mem_req: 2                                # GB of RAM to request from node.
-jobs: 1                                   # number of jobs for each submission. This entry is ignored if lund files are used. In that case, theres is exactly one job / file
+jobs: 3                                   # number of jobs for each submission. This entry is ignored if lund files are used. In that case, theres is exactly one job / file
