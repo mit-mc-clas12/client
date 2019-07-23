@@ -15,6 +15,7 @@
 from __future__ import print_function
 import argparse, os, sqlite3, subprocess, sys, time
 from subprocess import PIPE, Popen
+import gcard_selector
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))+'/../../')
 #Could also do the following, but then python has to search the
 #sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -62,6 +63,10 @@ def User_Submission(args):
     strn = "SELECT UserID FROM Users WHERE User = '{0}';".format(username)
     userid = utils.db_grab(strn)[0][0]
     #Write gcards into gcards table
+
+    print("You have not specified a custom gcard, please use one of the common CLAS12 gcards listed below \n")
+    scard_fields.data['gcards'] = gcard_selector.select_gcard(args)
+
     utils.printer("Writing GCards to Database")
     gcard_helper.GCard_Entry(BatchID,timestamp,scard_fields.data['gcards'])
     print("Successfully added gcards to database")
