@@ -23,13 +23,13 @@ from utils import fs, gcard_helper, get_args, scard_helper, user_validation, uti
 def Batch_Entry(args):
     timestamp = utils.gettime() # Can modify this if need 10ths of seconds or more resolution
     strn = """INSERT INTO Batches(timestamp) VALUES ("{0}");""".format(timestamp)
-    BatchID = utils.sql3_exec(strn)
+    BatchID = utils.db_write(strn)
     scard_file = args.scard
 
     #Write the text contained in scard.txt to a field in the Batches table
     with open(scard_file, 'r') as file: scard = file.read()
     strn = """UPDATE Batches SET {0} = '{1}' WHERE BatchID = "{2}";""".format('scard',scard,BatchID)
-    utils.sql3_exec(strn)
+    utils.db_write(strn)
     utils.printer("Batch specifications written to database with BatchID {0}".format(BatchID))
 
     #See if user exists already in database; if not, add them
@@ -60,28 +60,28 @@ def Batch_Entry(args):
 
 
     strn = "SELECT UserID FROM Users WHERE User = '{0}';".format(username)
-    userid = utils.sql3_grab(strn)[0][0]
+    userid = utils.db_grab(strn)[0][0]
     #Write gcards into gcards table
     utils.printer("Writing GCards to Database")
     gcard_helper.GCard_Entry(BatchID,timestamp,scard_fields.data['gcards'])
     print("Successfully added gcards to database")
     strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('UserID',userid,BatchID)
-    utils.sql3_exec(strn)
+    utils.db_write(strn)
 
     strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('User',username,BatchID)
-    utils.sql3_exec(strn)
+    utils.db_write(strn)
 
 
     strn = "SELECT GcardID, gcard_text FROM Gcards WHERE BatchID = {0};".format(BatchID)
-    gcards = utils.sql3_grab(strn)
+    gcards = utils.db_grab(strn)
     for gcard in gcards:
       GcardID = gcard[0]
       strn = "INSERT INTO Submissions(BatchID,GcardID) VALUES ({0},{1});".format(BatchID,GcardID)
-      utils.sql3_exec(strn)
+      utils.db_write(strn)
       strn = "UPDATE Submissions SET submission_pool = '{0}' WHERE GcardID = '{1}';".format(scard_fields.data['farm_name'],GcardID)
-      utils.sql3_exec(strn)
+      utils.db_write(strn)
       strn = "UPDATE Submissions SET run_status = 'Not Submitted' WHERE GcardID = '{0}';".format(GcardID)
-      utils.sql3_exec(strn)
+      utils.db_write(strn)
 
     return 0
 
