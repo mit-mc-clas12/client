@@ -62,20 +62,22 @@ def User_Submission(args):
 
     strn = "SELECT UserID FROM Users WHERE User = '{0}';".format(username)
     userid = utils.db_grab(strn)[0][0]
-    #Write gcards into gcards table
 
-    #gcard_writer.gcard_writer(args)
+
+    #Write gcards into gcards table
+    gcard_writer.gcard_writer(args)
+
     print("You have not specified a custom gcard, please use one of the common CLAS12 gcards listed below \n")
     scard_fields.data['gcards'] = gcard_selector.select_gcard(args)
     utils.printer("Writing GCards to Database")
     gcard_helper.GCard_Entry(BatchID,timestamp,scard_fields.data['gcards'])
     print("Successfully added gcards to database")
+
+
     strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('UserID',userid,BatchID)
     utils.db_write(strn)
-
     strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('User',username,BatchID)
     utils.db_write(strn)
-
 
     strn = "SELECT GcardID, gcard_text FROM Gcards WHERE BatchID = {0};".format(BatchID)
     gcards = utils.db_grab(strn)
@@ -88,23 +90,20 @@ def User_Submission(args):
       strn = "UPDATE Submissions SET run_status = 'Not Submitted' WHERE GcardID = '{0}';".format(GcardID)
       utils.db_write(strn)
 
-    return 0
-
 if __name__ == "__main__":
-  args = get_args.get_args()
+  args = get_args.get_args_client()
 
   if args.lite:
-    exists = os.path.isfile(fs.SQLite_DB_path+fs.DB_name)
-  else:
-    exists = """insert some connection to mysql db test"""
+    if not os.path.isfile(fs.SQLite_DB_path+fs.DB_name):
+      print('Could not find SQLite Database File. Are you sure it exists and lives in the proper location? Consult README for help')
+      exit()
+  elif not """insert some connection to mysql db test""":
+    print('Could not connect to MySQL database. Are you sure it exists and lives in the proper location? Consult README for help')
+    exit()
 
-  if args.scard:
-    if exists:
-        User_Submission(args)
-    else:
-        print('Could not find SQLite Database File. Are you sure it exists and lives in the proper location? Consult README for help')
-        exit()
-  else:
+  if not args.scard:
     print('SubMit.py requires an scard.txt file to submit a job. You can find an example listed in the documentation')
     print('Proper usage is `SubMit.py <name of scard file>` e.g. `SubMit.py scard.txt`')
     exit()
+  else:
+    User_Submission(args)
