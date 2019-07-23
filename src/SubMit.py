@@ -18,7 +18,7 @@ from subprocess import PIPE, Popen
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))+'/../../')
 #Could also do the following, but then python has to search the
 #sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from utils import file_struct, gcard_helper, get_args, scard_helper, user_validation, utils
+from utils import fs, gcard_helper, get_args, scard_helper, user_validation, utils
 
 def Batch_Entry(args):
     timestamp = utils.gettime() # Can modify this if need 10ths of seconds or more resolution
@@ -52,8 +52,8 @@ def Batch_Entry(args):
       scard_fields.data['nevents']       = "User Lund File Driven"
       scard_fields.data['jobs']          = "One per User Lund File"
     else:
-      scard_fields.data['genExecutable'] = file_struct.genExecutable.get(scard_fields.data.get('generator'))
-      scard_fields.data['genOutput']     = file_struct.genOutput.get(scard_fields.data.get('generator'))
+      scard_fields.data['genExecutable'] = fs.genExecutable.get(scard_fields.data.get('generator'))
+      scard_fields.data['genOutput']     = fs.genOutput.get(scard_fields.data.get('generator'))
 
     scard_helper.SCard_Entry(BatchID,timestamp,scard_fields.data)
     print('\t Your scard has been read into the database with BatchID = {0} at {1} \n'.format(BatchID,timestamp))
@@ -89,7 +89,7 @@ if __name__ == "__main__":
   args = get_args.get_args()
 
   if args.lite:
-    exists = os.path.isfile(file_struct.SQLite_DB_path+file_struct.DB_name)
+    exists = os.path.isfile(fs.SQLite_DB_path+fs.DB_name)
   else:
     exists = """insert some connection to mysql db test"""
 
