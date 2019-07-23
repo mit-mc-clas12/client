@@ -14,23 +14,18 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))+'/../../')
 #sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from utils import fs, gcard_helper, get_args, scard_helper, user_validation, utils
 
-
-def gcard_writer(args):
-
-    print("You have not specified a custom gcard, please use one of the common CLAS12 gcards listed below \n")
-    scard_fields.data['gcards'] = gcard_selector.select_gcard(args)
-    utils.printer("Writing GCards to Database")
-    gcard_helper.GCard_Entry(BatchID,timestamp,scard_fields.data['gcards'])
-    print("Successfully added gcards to database")
-    strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('UserID',userid,BatchID)
-    utils.db_write(strn)
-
-    strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('User',username,BatchID)
-    utils.db_write(strn)
-
-
+def update_tables(args,BatchID,username,timestamp,scard_fields):
+    #Grab username and gcard information that just got entered into DB
+    strn = "SELECT UserID FROM Users WHERE User = '{0}';".format(username)
+    userid = utils.db_grab(strn)[0][0]
     strn = "SELECT GcardID, gcard_text FROM Gcards WHERE BatchID = {0};".format(BatchID)
     gcards = utils.db_grab(strn)
+
+    #Update tables
+    strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('UserID',userid,BatchID)
+    utils.db_write(strn)
+    strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('User',username,BatchID)
+    utils.db_write(strn)
     for gcard in gcards:
       GcardID = gcard[0]
       strn = "INSERT INTO Submissions(BatchID,GcardID) VALUES ({0},{1});".format(BatchID,GcardID)
@@ -39,3 +34,7 @@ def gcard_writer(args):
       utils.db_write(strn)
       strn = "UPDATE Submissions SET run_status = 'Not Submitted' WHERE GcardID = '{0}';".format(GcardID)
       utils.db_write(strn)
+
+if __name__ == "__main__":
+  args = get_args.get_args_client()
+  update_tables(args,BatchID,username,scard)

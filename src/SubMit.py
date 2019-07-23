@@ -15,96 +15,45 @@
 from __future__ import print_function
 import argparse, os, sqlite3, subprocess, sys, time
 from subprocess import PIPE, Popen
-import gcard_selector
+import gcard_selector, scard_handler, gcard_handler, update_tables
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))+'/../../')
 #Could also do the following, but then python has to search the
 #sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from utils import fs, gcard_helper, get_args, scard_helper, user_validation, utils
 
 def User_Submission(args):
-    timestamp = utils.gettime() # Can modify this if need 10ths of seconds or more resolution
+    # Get time batch was submitted
+    timestamp = utils.gettime()
+    # Get user and domain information
+    username = user_validation.user_validation()
+    #Enter batch timestamp into DB, initializing user submission entry
     strn = """INSERT INTO Batches(timestamp) VALUES ("{0}");""".format(timestamp)
     BatchID = utils.db_write(strn)
-    scard_file = args.scard
 
-    #Write the text contained in scard.txt to a field in the Batches table
-    with open(scard_file, 'r') as file: scard = file.read()
-    strn = """UPDATE Batches SET {0} = '{1}' WHERE BatchID = "{2}";""".format('scard',scard,BatchID)
-    utils.db_write(strn)
-    utils.printer("Batch specifications written to database with BatchID {0}".format(BatchID))
+    #Handle scard information
+    scard_fields = scard_handler.scard_handler(args,BatchID,timestamp)
 
-    #See if user exists already in database; if not, add them
-    with open(scard_file, 'r') as file: scard_text = file.read()
-    scard_fields = scard_helper.scard_class(scard_text)
-    username = user_validation.user_validation()
+    #Handle gcard information
+    scard_fields = gcard_handler.gcard_handler(args,BatchID,timestamp,scard_fields)
 
-    #Write scard into scard table fields (This will not be needed in the future)
-    print("\nReading in information from {0}".format(scard_file))
-    utils.printer("Writing SCard to Database")
-    scard_fields.data['group_name'] = scard_fields.data.pop('group') #'group' is a protected word in SQL so we can't use the field title "group"
-    # For more information on protected words in SQL, see https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls?KEY=RSQL_reservedwords
+    #Update tables with gcard and scard information
+    update_tables.update_tables(args,BatchID,username,timestamp,scard_fields)
 
-    if 'http' in scard_fields.data.get('generator'):
-      print("Online repository for generator files specified. On server will download LUND files from:")
-      print("{0}".format(scard_fields.data.get('generator')))
-      scard_fields.data['genExecutable'] = "Null"
-      scard_fields.data['genOutput']     = "Null"
-      scard_fields.data['genOptions']    = "Null"
-      scard_fields.data['nevents']       = "User Lund File Driven"
-      scard_fields.data['jobs']          = "One per User Lund File"
-    else:
-      scard_fields.data['genExecutable'] = fs.genExecutable.get(scard_fields.data.get('generator'))
-      scard_fields.data['genOutput']     = fs.genOutput.get(scard_fields.data.get('generator'))
-
-    scard_helper.SCard_Entry(BatchID,timestamp,scard_fields.data)
-    print('\t Your scard has been read into the database with BatchID = {0} at {1} \n'.format(BatchID,timestamp))
-
-
-    strn = "SELECT UserID FROM Users WHERE User = '{0}';".format(username)
-    userid = utils.db_grab(strn)[0][0]
-    #Write gcards into gcards table
-
-    #gcard_writer.gcard_writer(args)
-    print("You have not specified a custom gcard, please use one of the common CLAS12 gcards listed below \n")
-    scard_fields.data['gcards'] = gcard_selector.select_gcard(args)
-    utils.printer("Writing GCards to Database")
-    gcard_helper.GCard_Entry(BatchID,timestamp,scard_fields.data['gcards'])
-    print("Successfully added gcards to database")
-    strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('UserID',userid,BatchID)
-    utils.db_write(strn)
-
-    strn = "UPDATE Batches SET {0} = '{1}' WHERE BatchID = {2};".format('User',username,BatchID)
-    utils.db_write(strn)
-
-
-    strn = "SELECT GcardID, gcard_text FROM Gcards WHERE BatchID = {0};".format(BatchID)
-    gcards = utils.db_grab(strn)
-    for gcard in gcards:
-      GcardID = gcard[0]
-      strn = "INSERT INTO Submissions(BatchID,GcardID) VALUES ({0},{1});".format(BatchID,GcardID)
-      utils.db_write(strn)
-      strn = "UPDATE Submissions SET submission_pool = '{0}' WHERE GcardID = '{1}';".format(scard_fields.data['farm_name'],GcardID)
-      utils.db_write(strn)
-      strn = "UPDATE Submissions SET run_status = 'Not Submitted' WHERE GcardID = '{0}';".format(GcardID)
-      utils.db_write(strn)
-
-    return 0
 
 if __name__ == "__main__":
-  args = get_args.get_args()
+  args = get_args.get_args_client()
 
   if args.lite:
-    exists = os.path.isfile(fs.SQLite_DB_path+fs.DB_name)
-  else:
-    exists = """insert some connection to mysql db test"""
+    if not os.path.isfile(fs.SQLite_DB_path+fs.DB_name):
+      print('Could not find SQLite Database File. Are you sure it exists and lives in the proper location? Consult README for help')
+      exit()
+  elif not """insert some connection to mysql db test""":
+    print('Could not connect to MySQL database. Are you sure it exists and lives in the proper location? Consult README for help')
+    exit()
 
-  if args.scard:
-    if exists:
-        User_Submission(args)
-    else:
-        print('Could not find SQLite Database File. Are you sure it exists and lives in the proper location? Consult README for help')
-        exit()
-  else:
+  if not args.scard:
     print('SubMit.py requires an scard.txt file to submit a job. You can find an example listed in the documentation')
     print('Proper usage is `SubMit.py <name of scard file>` e.g. `SubMit.py scard.txt`')
     exit()
+  else:
+    User_Submission(args)
