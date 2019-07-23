@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))+'/../../')
 #sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from utils import fs, gcard_helper, get_args, scard_helper, user_validation, utils
 
-def Batch_Entry(args):
+def User_Submission(args):
     timestamp = utils.gettime() # Can modify this if need 10ths of seconds or more resolution
     strn = """INSERT INTO Batches(timestamp) VALUES ("{0}");""".format(timestamp)
     BatchID = utils.db_write(strn)
@@ -95,11 +95,11 @@ if __name__ == "__main__":
 
   if args.scard:
     if exists:
-        Batch_Entry(args)
+        User_Submission(args)
     else:
         print('Could not find SQLite Database File. Are you sure it exists and lives in the proper location? Consult README for help')
         exit()
   else:
-    print('SubMit.py requires an scard.txt file to submit a job. You can find an example listed in the documentation \n')
+    print('SubMit.py requires an scard.txt file to submit a job. You can find an example listed in the documentation')
     print('Proper usage is `SubMit.py <name of scard file>` e.g. `SubMit.py scard.txt`')
     exit()
