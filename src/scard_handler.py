@@ -15,14 +15,14 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))+'/../../')
 from utils import fs, gcard_helper, get_args, scard_helper, user_validation, utils
 
 
-def scard_handler(args,BatchID,timestamp):
+def scard_handler(args,UserSubmissionID,timestamp):
   scard_file = args.scard
 
-  #Write the text contained in scard.txt to a field in the Batches table
+  #Write the text contained in scard.txt to a field in the UserSubmissions table
   with open(scard_file, 'r') as file: scard = file.read()
-  strn = """UPDATE Batches SET {0} = '{1}' WHERE BatchID = "{2}";""".format('scard',scard,BatchID)
+  strn = """UPDATE UserSubmissions SET {0} = '{1}' WHERE UserSubmissionID = "{2}";""".format('scard',scard,UserSubmissionID)
   utils.db_write(strn)
-  utils.printer("Batch specifications written to database with BatchID {0}".format(BatchID))
+  utils.printer("UserSubmission specifications written to database with UserSubmissionID {0}".format(UserSubmissionID))
 
   #See if user exists already in database; if not, add them
   with open(scard_file, 'r') as file: scard_text = file.read()
@@ -46,11 +46,11 @@ def scard_handler(args,BatchID,timestamp):
     scard_fields.data['genExecutable'] = fs.genExecutable.get(scard_fields.data.get('generator'))
     scard_fields.data['genOutput']     = fs.genOutput.get(scard_fields.data.get('generator'))
 
-  scard_helper.SCard_Entry(BatchID,timestamp,scard_fields.data)
-  print('\t Your scard has been read into the database with BatchID = {0} at {1} \n'.format(BatchID,timestamp))
+  scard_helper.SCard_Entry(UserSubmissionID,timestamp,scard_fields.data)
+  print('\t Your scard has been read into the database with UserSubmissionID = {0} at {1} \n'.format(UserSubmissionID,timestamp))
 
   return scard_fields
 
 if __name__ == "__main__":
   args = get_args.get_args_client()
-  scard_handler(args,BatchID,timestamp)
+  scard_handler(args,UserSubmissionID,timestamp)

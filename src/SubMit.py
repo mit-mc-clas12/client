@@ -22,22 +22,22 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))+'/../../')
 from utils import fs, gcard_helper, get_args, scard_helper, user_validation, utils
 
 def User_Submission(args):
-    # Get time batch was submitted
+    # Get time UserSubmission was submitted
     timestamp = utils.gettime()
     # Get user and domain information
     username = user_validation.user_validation()
-    #Enter batch timestamp into DB, initializing user submission entry
-    strn = """INSERT INTO Batches(timestamp) VALUES ("{0}");""".format(timestamp)
-    BatchID = utils.db_write(strn)
+    #Enter UserSubmission timestamp into DB, initializing user submission entry
+    strn = """INSERT INTO UserSubmissions(timestamp) VALUES ("{0}");""".format(timestamp)
+    UserSubmissionID = utils.db_write(strn)
 
     #Handle scard information
-    scard_fields = scard_handler.scard_handler(args,BatchID,timestamp)
+    scard_fields = scard_handler.scard_handler(args,UserSubmissionID,timestamp)
 
     #Handle gcard information
-    scard_fields = gcard_handler.gcard_handler(args,BatchID,timestamp,scard_fields)
+    scard_fields = gcard_handler.gcard_handler(args,UserSubmissionID,timestamp,scard_fields)
 
     #Update tables with gcard and scard information
-    update_tables.update_tables(args,BatchID,username,timestamp,scard_fields)
+    update_tables.update_tables(args,UserSubmissionID,username,timestamp,scard_fields)
 
 
 if __name__ == "__main__":
