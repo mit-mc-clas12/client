@@ -25,7 +25,7 @@ def User_Submission(args):
     # Get time UserSubmission was submitted
     timestamp = utils.gettime()
     # Get user and domain information
-    username = user_validation.user_validation()
+    username = user_validation.user_validation(args)
     #Enter UserSubmission timestamp into DB, initializing user submission entry
     strn = """INSERT INTO UserSubmissions(timestamp) VALUES ("{0}");""".format(timestamp)
     UserSubmissionID = utils.db_write(strn)
