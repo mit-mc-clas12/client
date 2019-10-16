@@ -1,7 +1,7 @@
 project:  CLAS12                     # project name
 group:  RGA                          # project tag (statistical purposes)
 farm_name: OSG                       # farm pool
-gcards: clas12-default.gcard         # gcard within the container
+gcards: /jlab/clas12Tags/gcards/clas12-default.gcard         # gcard within the container
 generator: clasdis    	             # one of the container generators
 genOptions: --t 10 15                # generator options
 nevents: 100                         # number of events / job
