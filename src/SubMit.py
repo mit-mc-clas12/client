@@ -26,18 +26,18 @@ def User_Submission(args):
     timestamp = utils.gettime()
     # Get user and domain information
     username = user_validation.user_validation(args)
-    #Enter UserSubmission timestamp into DB, initializing user submission entry
+    # Enter UserSubmission timestamp into DB, initializing user submission entry
     strn = """INSERT INTO UserSubmissions(timestamp) VALUES ("{0}");""".format(timestamp)
     UserSubmissionID = utils.db_write(strn)
 
-    #Handle scard information
-    scard_fields = scard_handler.scard_handler(args,UserSubmissionID,timestamp)
+    # Handle scard information
+    scard_fields = scard_handler.scard_handler(args, UserSubmissionID, timestamp)
 
-    #Handle gcard information
-    scard_fields = gcard_handler.gcard_handler(args,UserSubmissionID,timestamp,scard_fields)
+    # Handle gcard information
+    scard_fields = gcard_handler.gcard_handler(args, UserSubmissionID, timestamp, scard_fields)
 
-    #Update tables with gcard and scard information
-    update_tables.update_tables(args,UserSubmissionID,username,timestamp,scard_fields)
+    # Update tables with gcard and scard information
+    update_tables.update_tables(args, UserSubmissionID, username, timestamp, scard_fields)
 
 
 if __name__ == "__main__":
@@ -52,8 +52,8 @@ if __name__ == "__main__":
     exit()
 
   if not args.scard:
-    print('SubMit.py requires an scard.txt file to submit a job. You can find an example listed in the documentation')
-    print('Proper usage is `SubMit.py <name of scard file>` e.g. `SubMit.py scard.txt`')
+    print('SubMit.py requires an scard file to submit a job. You can find examples in the documentation.')
+    print('Proper usage is `SubMit.py -u <username> <scard>` e.g. `SubMit.py -u your-jlab-username scard_type1.txt`')
     exit()
   else:
     User_Submission(args)
