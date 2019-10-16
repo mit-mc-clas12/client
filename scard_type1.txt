@@ -5,3 +5,4 @@ gcards: /jlab/clas12Tags/gcards/clas12-default.gcard         # gcard within the 
 generator: clasdis    	             # one of the container generators
 genOptions: --t 10 15                # generator options
 nevents: 100                         # number of events / job
+jobs: 1                              # number of jobs for each submission.
