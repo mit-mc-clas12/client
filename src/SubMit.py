@@ -109,11 +109,21 @@ def update_fs_from_args(args):
     fs.DEBUG = getattr(args, fs.debug_long)
     fs.use_mysql = not args.lite
 
+def update_database_authentication(args):
+    """Temporary function to authenticate while full 
+    database authentication is configured. """
+    if not args.lite:
+        with open(fs.dirname + '/../msqlrw.txt','r') as myfile:
+            login = myfile.read().replace('\n', ' ')
+            login_params = login.split()
+            fs.mysql_uname = login_params[0]
+            fs.mysql_psswrd =  login_params[1]
 
 if __name__ == "__main__":
 
     args = configure_args() 
     update_fs_from_args(args) 
+    update_database_authentication(args)
 
     if args.lite:
         if not os.path.isfile(fs.SQLite_DB_path + fs.DB_name):
