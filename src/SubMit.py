@@ -109,14 +109,12 @@ def update_fs_from_args(args):
     fs.DEBUG = getattr(args, fs.debug_long)
     fs.use_mysql = not args.lite
 
-def client(args):
-    pass 
-
 
 if __name__ == "__main__":
 
     args = configure_args() 
-        
+    update_fs_from_args(args) 
+
     if args.lite:
         if not os.path.isfile(fs.SQLite_DB_path + fs.DB_name):
             print(("Could not find SQLite Database File. Are you sure"
