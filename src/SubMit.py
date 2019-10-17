@@ -43,11 +43,59 @@ from utils import (fs, gcard_helper, get_args,
                    scard_helper, user_validation, utils)
 
 
-def User_Submission(args):
+def run_client(args):
+    """Main client function.  I am moving responsibility 
+    outside of other module helper functions and into this 
+    function so that the flow of the program is more obvious. 
+
+    The current function works, but is under construction. 
+
+    Proposed Flow (psuedocode): 
+
+    # Setup Database 
+    cred_file = '../msqlrw.txt'
+    username, password = load_database_credentials(cred_file)
+    db_conn, sql = establish_database_connection(username, password)
+    
+    # Get time this submission is marked as 
+    timestamp = utils.gettime() 
+
+    # See if the user is new 
+    username = user_validation.get_username() 
+    domain_name = user_validation.get_domain_name() 
+
+    # If so, add this user to our database of users
+    if username not in user_validation.get_users(sql):
+        user_validation.add_new_user(username, domain_name, sql)
+
+    # Setup an entry in the UserSubmissions table for the 
+    # current submission. 
+    user_submission_id = add_entry_to_user_submissions(sql)
+    
+    # Load the SCard for this submission and inject it into 
+    # the database.
+    scard_fields = scard_handler.open_scard(args.scard)
+    scard_handler.inject_scard(scard_fields, user_submission_id, 
+                               timestamp, sql)
+    
+    # GCard stuff, I haven't looked into that function yet. 
+    # 
+    
+
+    # Update tables stuff, I haven't looked into that function. 
+
+    # Close database connection 
+    db_connection.close() 
+
+    """
+
+
     # Get time UserSubmission was submitted
     timestamp = utils.gettime()
+
     # Get user and domain information
     username = user_validation.user_validation(args)
+
     # Enter UserSubmission timestamp into DB, 
     # initializing user submission entry
     strn = """
@@ -146,4 +194,4 @@ if __name__ == "__main__":
         exit()
 
     else:
-        User_Submission(args)
+        run_client(args)
