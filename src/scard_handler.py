@@ -52,15 +52,7 @@ def scard_handler(args, UserSubmissionID, timestamp):
 
   return scard_fields
 
-def inject_scard_into_user_submissions(scard, user_submission_id, sql):
-  """Inject the scard raw into the table UserSubmissions """
-  insertion = """
-  UPDATE UserSubmissions SET {0} = '{1}'
-      WHERE UserSubmissionID = "{2}";
-  """.format('scard', scard, user_submission_id)
-  sql.execute(insertion)
-
-def open_and_inject_scard(scard_filename, user_submission_id, timestamp, sql):
+def open_scard(scard_filename):
   """Temporary function name, to provide functionality of 
   the function above. """
   with open(scard_filename, 'r') as scard_file:
@@ -68,11 +60,5 @@ def open_and_inject_scard(scard_filename, user_submission_id, timestamp, sql):
 
   # Get a class instance, this parses the scard. 
   scard_fields = scard_helper.scard_class(scard)
-  
-  # Inject card into database 
-  inject_scard_into_user_submissions(scard, user_submission_id, sql)
 
-  # The scard can also be injected into the scards table 
-  # here but I don't think we need to do that so for now 
-  # I am not writing that functionality. 
   return scard_fields 

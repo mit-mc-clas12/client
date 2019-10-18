@@ -1,9 +1,13 @@
 #!/usr/bin/env python
-#****************************************************************
+
+""" 
+
+This module contains client side utilities for updating 
+the main SQL tables.  Anything that uses INSERT or UPDATE 
+lives here.  
+
 """
-# Info
-"""
-#****************************************************************
+
 
 from __future__ import print_function
 import argparse, os, sqlite3, subprocess, sys, time
@@ -38,3 +42,38 @@ def update_tables(args, UserSubmissionID, username, timestamp, scard_fields):
 if __name__ == "__main__":
   args = get_args.get_args_client()
   update_tables(args, UserSubmissionID, username,scard)
+
+def add_new_user(username, domain_name, sql):
+    """Add a user to the Users table."""
+    
+    strn = """ 
+    INSERT INTO Users(
+        User, domain_name, JoinDateStamp, Total_UserSubmissions,
+        Total_Jobs, Total_Events, Most_Recent_Active_Date
+    )
+    VALUES ("{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}"); 
+    """.format(username, domain_name, utils.gettime(), 0, 0, 0, "Null")
+    
+    sql.execute(strn)
+    
+def add_entry_to_user_submissions(timestamp, sql):
+    """ Add a new entry to the UserSubmission table, 
+    this will auto-increment and assign a UserSubmissionID. """
+
+    strn = """                                                                 
+    INSERT INTO UserSubmissions(timestamp)                                     
+        VALUES ("{0}");""".format(timestamp)
+    
+    sql.execute(strn)
+
+    # The last row ID is the assigned UserSubmissionID 
+    # for this submission. 
+    return sql.lastrowid 
+
+def inject_scard(scard, user_submission_id, sql):
+  """Inject the scard raw into the table UserSubmissions """
+  strn  = """                                                               
+  UPDATE UserSubmissions SET {0} = '{1}'                                       
+      WHERE UserSubmissionID = "{2}";                                          
+  """.format('scard', scard, user_submission_id)
+  sql.execute(strn)

@@ -39,57 +39,12 @@ import update_tables
 
 # Ensure that the client can locate utils. 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))+'/../../')
-from utils import (fs, gcard_helper, get_args, 
+from utils import (database, fs, gcard_helper, get_args, 
                    scard_helper, user_validation, utils)
 
 
 def run_client(args):
-    """Main client function.  I am moving responsibility 
-    outside of other module helper functions and into this 
-    function so that the flow of the program is more obvious. 
-
-    The current function works, but is under construction. 
-
-    Proposed Flow (psuedocode): 
-
-    # Setup Database 
-    cred_file = '../msqlrw.txt'
-    username, password = load_database_credentials(cred_file)
-    db_conn, sql = establish_database_connection(username, password)
-    
-    # Get time this submission is marked as 
-    timestamp = utils.gettime() 
-
-    # See if the user is new 
-    username = user_validation.get_username() 
-    domain_name = user_validation.get_domain_name() 
-
-    # If so, add this user to our database of users
-    if username not in user_validation.get_users(sql):
-        user_validation.add_new_user(username, domain_name, sql)
-
-    # Setup an entry in the UserSubmissions table for the 
-    # current submission. 
-    user_submission_id = add_entry_to_user_submissions(sql)
-    
-    # Load the SCard for this submission and inject it into 
-    # the database.
-    scard_fields = scard_handler.open_scard(args.scard)
-    scard_handler.inject_scard(scard_fields, user_submission_id, 
-                               timestamp, sql)
-    
-    # GCard stuff, I haven't looked into that function yet. 
-    # 
-    
-
-    # Update tables stuff, I haven't looked into that function. 
-
-    # Close database connection 
-    db_connection.close() 
-
-    """
-
-
+    """This is the original client function."""
     # Get time UserSubmission was submitted
     timestamp = utils.gettime()
 
@@ -116,38 +71,70 @@ def run_client(args):
                                 username, timestamp, 
                                 scard_fields)
 
+def client(args):
+    """Client that depends on the database explicitly.
+    
+    1) Get database connection setup 
+    2) If this is a new user, add them to our 
+       users database.  Then setup a submission ID 
+       for this submission. 
+    3) Inject the SCard into our databases
+
+    """
+
+    # Setup database connection.
+    update_fs_from_args(args)
+    update_database_authentication(args)
+    db_conn, sql = database.get_database_connection() 
+
+    # Get basic information related to this user submission. 
+    timestamp = utils.gettime() 
+    username = user_validation.get_username()
+    domain_name = user_validation.get_domain_name()
+
+    # If this user is not in our users database, add them.
+    if username not in database.get_users(sql):
+        update_tables.add_new_user(username, domain_name, sql)
+
+    # Setup an entry in the UserSubmisisons table for the current submission. 
+    user_submission_id = update_tables.add_entry_to_user_submissions(
+        timestamp, sql)
+
+    # Load the SCard for this submission and inject it into 
+    # the database. 
+    scard_fields = scard_handler.open_scard(args.scard)
+    update_tables.inject_scard(scard_fields, user_submission_id, 
+                               timestamp, sql)
+    
+    # GCard stuff 
+    
+    # Update tables stuff 
+
+    db_conn.close() 
+    
+
 def configure_args():
     """Configure and collect arguments from command line."""
 
     ap = argparse.ArgumentParser() 
-    ap.add_argument(
-        'scard', 
-        help=("relative path and name scard you"
-              "want to submit, e.g. ../scard.txt"),
-        nargs='?'
+
+    help_str = ("relative path and name scard you"
+                "want to submit, e.g. ../scard.txt")
+    ap.add_argument('scard', help=help_str, nargs='?')
+
+    ap.add_argument(fs.debug_short, fs.debug_longdash, 
+        default=fs.debug_default, help=fs.debug_help
     )
-    ap.add_argument(
-        fs.debug_short, 
-        fs.debug_longdash, 
-        default=fs.debug_default, 
-        help=fs.debug_help
-    )
-    ap.add_argument(
-        '-l', 
-        '--lite', 
-        help=("use -l or --lite to connect to"
-              "sqlite DB, otherwise use MySQL DB"),
-        action = 'store_true'
-    )
-    ap.add_argument(
-        '-u',
-        '--username', 
-        default=None, 
-        help=("Enter user ID for web-interface," 
-              "Only if \'whoami\' is \'gemc\'")
-    )
+
+    help_str = ("use -l or --lite to connect to"
+                "sqlite DB, otherwise use MySQL DB")
+    ap.add_argument('-l', '--lite', help=help_str, action='store_true')
+
+    help_str = ("Enter user ID for web-interface," 
+                "Only if \'whoami\' is \'gemc\'")
+    ap.add_argument('-u', '--username', default=None, help=help_str)
     
-    # Return arguments to user 
+    # Collect args from the command line and return to user
     return ap.parse_args()
 
 def update_fs_from_args(args):
