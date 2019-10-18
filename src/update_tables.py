@@ -1,5 +1,5 @@
-B#!/usr/bin/env python
-1;95;0c
+#!/usr/bin/env python
+
 """ 
 
 This module contains client side utilities for updating 
