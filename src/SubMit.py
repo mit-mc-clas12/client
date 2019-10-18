@@ -72,13 +72,15 @@ def run_client(args):
                                 scard_fields)
 
 def client(args):
-    """Client that depends on the database explicitly.
+    """ Client that depends on the database explicitly.
     
     1) Get database connection setup 
-    2) If this is a new user, add them to our 
+    2) Determine the username, provided usernames at the CL 
+       take priority over inferred usernames. 
+    3) If this is a new user, add them to our 
        users database.  Then setup a submission ID 
        for this submission. 
-    3) Inject the SCard into our databases
+    4) Inject the SCard into our databases
 
     """
 
@@ -88,8 +90,10 @@ def client(args):
     db_conn, sql = database.get_database_connection() 
 
     # Get basic information related to this user submission. 
+    # If the username is provided at the CL, that takes 
+    # priority over inference of the username. 
     timestamp = utils.gettime() 
-    username = user_validation.get_username()
+    username = args.username or user_validation.get_username()
     domain_name = user_validation.get_domain_name()
 
     # If this user is not in our users database, add them.
@@ -103,10 +107,14 @@ def client(args):
     # Load the SCard for this submission and inject it into 
     # the database. 
     scard_fields = scard_handler.open_scard(args.scard)
-    update_tables.inject_scard(scard_fields, user_submission_id, 
-                               timestamp, sql)
-    
+    update_tables.add_scard_to_user_submissions(scard_fields, 
+                                                user_submission_id,
+                                                timestamp, sql)
+    update_tables.add_scard_to_scards_table(scard_fields.data, 
+                                            user_submission_id, sql)
+
     # GCard stuff 
+    
     
     # Update tables stuff 
 
