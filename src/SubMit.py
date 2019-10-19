@@ -113,10 +113,117 @@ def client(args):
     update_tables.add_scard_to_scards_table(scard_fields.data, 
                                             user_submission_id, sql)
 
-    # GCard stuff 
-    
-    
-    # Update tables stuff 
+    # A simple name based method for retrieval 
+    # of the scard type.
+    scard_type = scard_handler.get_scard_type(args.scard)
+
+    # Add the gcard name to the database, we should probably
+    # check first that the gcard exists in the container.
+    if scard_type in [1, 2]:
+        
+        if scard_fields.data['gcards'] in fs.container_gcards:
+            update_tables.add_gcard_to_gcards_table(scard_fields.data['gcards'], 
+                                                    user_submission_id, sql)
+        else:
+            exep = ("The supplied gcard: {0} is supposed to exist in "
+                    "the container, but it was not found.").format(
+                        scard_fields.data['gcards']
+                    )
+            # Consider raising custom exceptions, I don't think 
+            # ValueError is really appropriate.
+            raise ValueError(exep)
+
+    # Go through the exercise of downloading the 
+    # gcard(s) and adding them to the database.
+    #
+    # Is there a better way than explicitly checking 
+    # type here? 
+    elif scard_type in [3, 4]:
+
+        # I still need to write this function, which is already in 
+        # existence in GCard_Entry()
+        gcards = gcard_helper.download_gcards(scard_fields.data['gcards'])
+
+        # Add a call before this to make sure that something was found
+        # and if not, alert the user and stop the submission.  Perhaps 
+        # this should even be done before the start of injection of
+        # anything in the database so that we don't end up with partial 
+        # submissions in our database getting passed off to the server?
+        for gcard in gcards:
+            update_tables.add_gcard_to_gcards_table(gcard, user_submission_id, sql)
+
+    # gcard_handler (ignore my notes - sorry)
+    """ 
+    Look at the string provided for the gcards: entry 
+    in the scard.  Two possible cases exist (the) current 
+    code tries to handle a third case, but I don't think 
+    there are three cases.
+
+    First case: Type 1/2 scard, where the gcard specified 
+    exists in the container.
+
+    Second case: Type 3/4 scard, where the gcard(s) are 
+    included from the web.
+
+    How do we want to handle the inference of scard type? 
+    - It should be done once, that's all.
+    - It can be done a few ways: 
+        - (a) Look at the scard title, this should contain the simple 
+              designation typeX, where X is the type number.  This is 
+              not a robust solution, but if the scard is only ever 
+              produced automatically by the web interface, it will work 
+              just fine.
+        - (b) Infer the type from the fields within the scard, this can 
+              be done.  The functionality already exists in the codebase.
+              That code is currently on the server side, in type_manager.py 
+    """
+
+    # Update tables (ignore my notes - sorry)
+    """ 
+    Find the UserID for this submission and pull down the 
+    GcardID and gcard_text that was injected into the database
+    in the previous step.
+
+    Then, update the UserSubmissions table with the current UserID 
+    and User for the current UserSubmissionID.
+
+    For each gcard found in the first step: 
+        (a) Create an entry in the FarmSubmissions table with the 
+            UserSubmissionID and GcardID 
+        (b) Add the farm name to FarmSubmissions 
+        (c) Set FarmSubmissions.run_status to Not Submitted (this 
+            ensures that the server picks up the submission).
+    """
+
+    user_id = database.get_user_id(username)
+
+    # This could return more than one I guess, if there 
+    # were multiple cards downloaded and inserted into 
+    # the database. 
+    gcard_id = database.select_by_user_submission_id(
+        usub_id=user_submission_id, fields='GcardID', 
+        table='Gcards', sql=sql
+    )
+
+    # Above, we could have selected the gcard_id and gcard_text 
+    # from the Gcards table.  We already have the gcards here in 
+    # the gcards variable, but now the problem is ensuring that 
+    # they stay synchronized (it should be).
+
+    # Move this to a function in the update tables 
+    # module. 
+    update_template = """
+        UPDATE UserSubmissions SET {0} = '{1}'
+            WHERE UserSubmissionID = {2};
+        """
+    sql.execute(update_template.format('UserID', user_id, user_submission_id))
+    sql.execute(update_template.format('User', username, user_submission_id))
+
+    # Finally, update the FarmSubmissions table 
+    update_tables.add_entry_to_farm_submissions(
+        user_submission_id, gcard_id, 
+        scard_fields.data['farm_name'], sql
+    )
 
     db_conn.close() 
     

@@ -62,3 +62,30 @@ def open_scard(scard_filename):
   scard_fields = scard_helper.scard_class(scard)
 
   return scard_fields 
+
+def get_scard_type(scard_filename):
+  """ Returns the type of scard by inspecting the name 
+  of the scard file.  This can be replaced by a function
+  that inspects the contents of the scard and infers the 
+  type.  Such a function already exists in server/type_manager.
+  That can be migrated to utilities if needed.  For now 
+  this simple approach is okay, because the web_interface 
+  always names the scard with the type in the name.
+
+  Input: 
+  ------
+  scard_filename - The name of the scard file (str).
+
+  Returns: 
+  --------
+  scard_type - The type of the scard, can be None if 
+               none of the allowed types are found in the name.
+  """
+  scard_type = None
+  for possible_type in fs.valid_scard_types:
+
+    name = 'type{0}'.format(possible_type)    
+    if name in scard_filename:
+      scard_type = possible_type 
+
+  return scard_type 
