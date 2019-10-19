@@ -195,7 +195,7 @@ def client(args):
             ensures that the server picks up the submission).
     """
 
-    user_id = database.get_user_id(username)
+    user_id = database.get_user_id(username, sql)
 
     # This could return more than one I guess, if there 
     # were multiple cards downloaded and inserted into 
