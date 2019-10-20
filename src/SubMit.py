@@ -74,13 +74,16 @@ def run_client(args):
 def client(args):
     """ Client that depends on the database explicitly.
     
-    1) Get database connection setup 
-    2) Determine the username, provided usernames at the CL 
-       take priority over inferred usernames. 
-    3) If this is a new user, add them to our 
-       users database.  Then setup a submission ID 
-       for this submission. 
-    4) Inject the SCard into our databases
+    To Do: 
+    ------
+    -> Test this function
+    -> Move the application setup logic to the top 
+       where anything that can cause the submission
+       to fail can happen before anything is inserted 
+       into the database.  Maybe this can be wired into 
+       feedback to the user of the web interface, so that 
+       they can correct their submission. 
+    -> Move some SQL statements to another package (bottom)
 
     """
 
@@ -142,7 +145,10 @@ def client(args):
         gcards = gcard_helper.download_gcards(scard_fields.data['gcards'])
 
         # If gcards is empty, something went wrong in the 
-        # application setup.  We should exit meaningfully.
+        # application setup.  
+        #
+        # I need to discuss how the web interface wants our 
+        # application to behave on finding errors in setup.
         if len(gcards) == 0:
             print('No gcards downloaded from: {0}'.format(
                 scard_fields.data['gcards']
@@ -188,7 +194,6 @@ def client(args):
 
     db_conn.close() 
     
-
 def configure_args():
     """Configure and collect arguments from command line."""
 
