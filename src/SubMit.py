@@ -72,12 +72,10 @@ def run_client(args):
                                 scard_fields)
 
 def client(args):
-    """ Client that depends on the database explicitly.
-    
-    To Do: 
-    ------
-    -> Move some SQL statements to another package (bottom)
-    -> Ensure support for sqlite still works
+    """ 
+    Main client function.  This is the driver which validates the scard
+    submitted and populates the database tables. 
+
     """
 
     logger = utils.configure_logger(args)
@@ -105,8 +103,9 @@ def client(args):
     scard_type = scard_handler.get_scard_type(args.scard)
     logger.debug('Type inference for SCard: {}'.format(scard_type))
 
-    # Add the gcard name to the database, we should probably
-    # check first that the gcard exists in the container.
+    # Verify that the gcard exists in our container, try to 
+    # download online gcards for types 3/4.  If any of this 
+    # fails we do not go forward with submission. 
     if scard_type in [1, 2]:
         
         if scard_fields.data['gcards'] in fs.container_gcards:
@@ -118,8 +117,8 @@ def client(args):
                         scard_fields.data['gcards']
                     )
 
-            # Consider raising custom exceptions
-            raise ValueError(exep)
+            logger.error(exep)
+            exit() 
 
     elif scard_type in [3, 4]:
         logger.debug('Downloading gcards from {}'.format(
@@ -127,27 +126,28 @@ def client(args):
         gcards = gcard_helper.download_gcards(scard_fields.data['gcards'])
 
         if len(gcards) == 0:
-            print('No gcards downloaded from: {0}'.format(
+            logger.error('No gcards downloaded from: {0}'.format(
                 scard_fields.data['gcards']
             ))
             exit() 
 
-    # From here down, the options have been validated and the 
-    # database will be populated. 
-    # 
-    # If this user is not in our users database, add them.
+    """ 
+    ----------------------------------------------- 
+    From this point and down, all options have been 
+    validated and the databases will be populated. 
+    ----------------------------------------------- 
+    """
+
     if username not in database.get_users(sql):
         logger.debug('Adding new user {} to users'.format(username))
         update_tables.add_new_user(username, domain_name, db_conn, sql)
 
-    # Setup an entry in the UserSubmisisons table for the current submission. 
+    # Setup an entry in the UserSubmissions table for the current submission. 
     user_submission_id = update_tables.add_entry_to_user_submissions(
         timestamp, db_conn, sql)
     logger.debug('UserSubmissionID = {}'.format(user_submission_id))
 
-    # Load the SCard for this submission and inject it into 
-    # the database. 
-    # 
+    # Update database tables with scard 
     update_tables.add_scard_to_user_submissions(scard_fields.raw_text, 
                                                 user_submission_id,
                                                 db_conn, sql)
