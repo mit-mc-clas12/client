@@ -59,7 +59,12 @@ def open_scard(scard_filename):
     scard = scard_file.read() 
 
   # Get a class instance, this parses the scard. 
+  # Append the raw text to the object, it is not 
+  # really much memory so I think this is fine.  
+  # It becomes useful instead of re-opening the 
+  # file multiple times to have the raw text. 
   scard_fields = scard_helper.scard_class(scard)
+  scard_fields.raw_text = scard 
 
   return scard_fields 
 

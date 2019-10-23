@@ -57,7 +57,7 @@ def update_tables(args, UserSubmissionID, username, timestamp, scard_fields):
       strn = "UPDATE FarmSubmissions SET run_status = 'Not Submitted' WHERE GcardID = '{0}';".format(GcardID)
       utils.db_write(strn)
 
-def add_new_user(username, domain_name, sql):
+def add_new_user(username, domain_name, db, sql):
     """Add a user to the Users table."""
     
     strn = """ 
@@ -69,8 +69,9 @@ def add_new_user(username, domain_name, sql):
     """.format(username, domain_name, utils.gettime(), 0, 0, 0, "Null")
     
     sql.execute(strn)
+    db.commit() 
     
-def add_entry_to_user_submissions(timestamp, sql):
+def add_entry_to_user_submissions(timestamp, db, sql):
     """ Add a new entry to the UserSubmission table, 
     this will auto-increment and assign a UserSubmissionID. """
 
@@ -79,20 +80,23 @@ def add_entry_to_user_submissions(timestamp, sql):
         VALUES ("{0}");""".format(timestamp)
     
     sql.execute(strn)
+    db.commit() 
 
     # The last row ID is the assigned UserSubmissionID 
-    # for this submission. 
+    # for this submission. Does the return value need 
+    # to be the lastrowid before commiting changes? 
     return sql.lastrowid 
 
-def add_scard_to_user_submissions(scard, user_submission_id, sql):
+def add_scard_to_user_submissions(scard, user_submission_id, db, sql):
   """Inject the scard raw into the table UserSubmissions """
   strn  = """                                                               
   UPDATE UserSubmissions SET {0} = '{1}'                                       
       WHERE UserSubmissionID = "{2}";                                          
   """.format('scard', scard, user_submission_id)
   sql.execute(strn)
+  db.commit() 
 
-def add_scard_to_scards_table(scard_fields, usub_id, timestamp, sql):
+def add_scard_to_scards_table(scard_fields, usub_id, timestamp, db, sql):
     """ Add the scard data dictionary to the database table called 
     Scards.  The Scard is also defined in the UserSubmissions database.
     
@@ -101,6 +105,8 @@ def add_scard_to_scards_table(scard_fields, usub_id, timestamp, sql):
     scard_fields - dict containing the data (field, value) from the scard
     usub_id - integer UserSubmissionID generated for this submission 
     timestamp - common timestamp for all operations on this submission 
+    db - Database connection. 
+    sql - Database cursor for writing. 
 
     To Do: 
     ------
@@ -113,6 +119,7 @@ def add_scard_to_scards_table(scard_fields, usub_id, timestamp, sql):
         VALUES ("{0}","{1}");
     """.format(usub_id, timestamp)
     sql.execute(strn)
+    db.commit() 
 
     update_template = """
     UPDATE Scards SET {0} = '{1}' 
@@ -120,8 +127,9 @@ def add_scard_to_scards_table(scard_fields, usub_id, timestamp, sql):
     """
     for field, field_value in scard_fields.items():
       sql.execute(update_template.format(field, field_value, usub_id))
+      db.commit() 
 
-def add_gcard_to_gcards_table(gcard_text, usub_id, sql):
+def add_gcard_to_gcards_table(gcard_text, usub_id, db, sql):
     """ Create an entry in the Gcards table for this user
     submission and then write the Gcard text into it. 
 
@@ -130,6 +138,7 @@ def add_gcard_to_gcards_table(gcard_text, usub_id, sql):
     gcard_text - the text of the gcard file
     usub_id - UserSubmissionID from the UserSubmissions table for this submission
     sql - The database cursor object for writing.
+    db - The database for committing changes. 
 
     """
 
@@ -138,14 +147,16 @@ def add_gcard_to_gcards_table(gcard_text, usub_id, sql):
         VALUES ({0});
     """.format(usub_id)
     sql.execute(strn)
+    db.commit() 
 
     strn = """
     UPDATE Gcards SET {0} = "{1}"
         WHERE UserSubmissionID = {2};
-    """.format(gcard_text, usub_id)
+    """.format('gcard_text', gcard_text, usub_id)
     sql.execute(strn)
+    db.commit() 
 
-def add_entry_to_farm_submissions(usub_id, gcard_id, farm_name, sql):
+def add_entry_to_farm_submissions(usub_id, gcard_id, farm_name, db, sql):
     """ Create an entry in the FarmSubmissions table for this 
     user submission.  
 
@@ -155,6 +166,7 @@ def add_entry_to_farm_submissions(usub_id, gcard_id, farm_name, sql):
     gcard_id - GcardID for this submission (int)
     farm_name - Name of farm destination (str)
     sql - The database cursor object for writing. 
+    db - The database for committing changes. 
 
     """
     strn = """
@@ -162,15 +174,43 @@ def add_entry_to_farm_submissions(usub_id, gcard_id, farm_name, sql):
         VALUES ({0},{1});
     """.format(usub_id, gcard_id)
     sql.execute(strn)
+    db.commit() 
 
     strn = """
     UPDATE FarmSubmissions SET submission_pool = '{0}' 
         WHERE GcardID = '{1}';
     """.format(farm_name, gcard_id)
     sql.execute(strn)
+    db.commit() 
 
     strn = """
     UPDATE FarmSubmissions SET run_status = 'Not Submitted' 
         WHERE GcardID = '{0}';
     """.format(gcard_id)
     sql.execute(strn)
+    db.commit() 
+
+def update_user_information(username, user_id, user_submission_id, db, sql):
+    """ Update the User and UserID for UserSubmissions.UserSubmissionID 
+    specified in arguments. 
+
+    Inputs: 
+    -------
+    username - To set User (str)
+    user_id - To set UserID (int), this comes from Users.UserID
+    user_submission_id - Key for setting these in UserSubmissions table (int)
+    db - Database connection for committing changes
+    sql - Database cursor for execution of statements 
+
+    """
+
+    update_template = """
+    UPDATE UserSubmissions SET {0} = '{1}' 
+        WHERE UserSubmissionID = {2};                                                                                             
+    """
+    sql.execute(update_template.format('UserID', user_id, user_submission_id))
+    db.commit()
+
+    sql.execute(update_template.format('User', username, user_submission_id))
+    db.commit()
+    
