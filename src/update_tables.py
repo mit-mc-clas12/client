@@ -126,8 +126,11 @@ def add_scard_to_scards_table(scard_fields, usub_id, timestamp, db, sql):
         WHERE UserSubmissionID = {2}
     """
     for field, field_value in scard_fields.items():
-      sql.execute(update_template.format(field, field_value, usub_id))
-      db.commit() 
+      try:
+          sql.execute(update_template.format(field, field_value, usub_id))
+          db.commit() 
+      except Exception as e:
+          print('Trouble inserting {} into {}: {}'.format(field, field_value, e))
 
 def add_gcard_to_gcards_table(gcard_text, usub_id, db, sql):
     """ Create an entry in the Gcards table for this user
