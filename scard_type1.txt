@@ -8,3 +8,8 @@ reconstruct: yes                                        # yes/no choice: reconst
 dst: yes                                                # choice: produce dst. "only" will discard the non-dst output
 nevents: 100                                            # number of events / job
 jobs: 1                                                 # number of jobs for each submission.
+generatorOUT: yes                                       # keep the generated file
+gemcEvioOUT: yes                                        # keep the gemc evio output
+gemcHipoOUT: yes                                        # keep the gemc decoded (hipo) output
+reconstructionOUT: yes                                  # keep the output from reconstruction
+dstOUT: yes                                             # keep the DST
