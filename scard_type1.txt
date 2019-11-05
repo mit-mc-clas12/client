@@ -4,8 +4,6 @@ farm_name: OSG                                          # farm pool
 gcards: /jlab/clas12Tags/gcards/clas12-default.gcard    # gcard within the container
 generator: clasdis    	                                # one of the container generators
 genOptions: --t 10 15                                   # generator options
-reconstruct: yes                                        # yes/no choice: reconstruct events
-dst: yes                                                # choice: produce dst. "only" will discard the non-dst output
 nevents: 100                                            # number of events / job
 jobs: 1                                                 # number of jobs for each submission.
 generatorOUT: yes                                       # keep the generated file

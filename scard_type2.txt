@@ -3,10 +3,8 @@ group:  RGA                                           # project tag (statistical
 farm_name: OSG                                        # farm pool
 gcards: /jlab/clas12Tags/gcards/clas12-default.gcard  # gcard within the container
 generator: https://userweb.jlab.org/~ungaro/lund/    	# online location containing LUND files
-reconstruct: yes                                      # yes/no choice: reconstruct events
-dst: yes                                              # choice: produce dst. "only" will discard the non-dst output
-generatorOUT: yes                                       # keep the generated file
-gemcEvioOUT: yes                                        # keep the gemc evio output
-gemcHipoOUT: yes                                        # keep the gemc decoded (hipo) output
-reconstructionOUT: yes                                  # keep the output from reconstruction
-dstOUT: yes                                             # keep the DST
+generatorOUT: yes                                     # keep the generated file
+gemcEvioOUT: yes                                      # keep the gemc evio output
+gemcHipoOUT: yes                                      # keep the gemc decoded (hipo) output
+reconstructionOUT: yes                                # keep the output from reconstruction
+dstOUT: yes                                           # keep the DST
