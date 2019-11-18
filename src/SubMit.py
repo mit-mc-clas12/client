@@ -30,19 +30,18 @@ from subprocess import PIPE, Popen
 import argparse
 import sqlite3
 
-# This project imports
-import gcard_handler
-import gcard_selector
-import scard_handler
-import update_tables
-
-
 # Ensure that the client can locate utils.  Having to call sys
 # before this import breaks PEP8.  This will be fixed by
 # packaging and installing the utilities.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))+'/../../')
 from utils import (database, fs, gcard_helper, get_args,
                    scard_helper, user_validation, utils)
+
+# This project imports
+import gcard_handler
+import gcard_selector
+import scard_handler
+import update_tables
 
 
 def client(args):
