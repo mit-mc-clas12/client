@@ -53,10 +53,20 @@ def client(args):
     logger = utils.configure_logger(args)
 
     # Setup database connection.
-    update_fs_from_args(args)
-    update_database_authentication(args)
-    db_conn, sql = database.get_database_connection()
+    cred_file = os.path.dirname(os.path.abspath(__file__)) + \
+                '/../../msqlrw.txt'
+    cred_file = os.path.normpath(cred_file)
+    username, password = database.load_database_credentials(cred_file)
 
+    use_mysql = False if args.lite else True
+    db_conn, sql = database.get_database_connection(
+        use_mysql=use_mysql,
+        database_name=args.lite,
+        username=username,
+        password=password,
+        hostname='jsubmit.jlab.org'
+    )
+    
     # Get basic information related to this user submission.
     # If the username is provided at the CL, that takes
     # priority over inference of the username.
@@ -182,9 +192,10 @@ def configure_args():
 
     ap.add_argument('-d', '--debug', default=0, type=int)
 
-    help_str = ("use -l or --lite to connect to"
-                "sqlite DB, otherwise use MySQL DB")
-    ap.add_argument('-l', '--lite', help=help_str, action='store_true')
+    help_str = ("use -l=<database> or --lite=<database> to connect to"
+                " an sqlite database.")
+    ap.add_argument('-l', '--lite', help=help_str, required=False,
+                    type=str, default=None)
 
     help_str = ("Enter user ID for web-interface,"
                 "Only if \'whoami\' is \'gemc\'")
@@ -199,7 +210,7 @@ def update_fs_from_args(args):
     this can be changed to something more like a
     configuration file or function."""
     fs.DEBUG = getattr(args, fs.debug_long)
-    fs.use_mysql = not args.lite
+    fs.use_mysql = False if args.lite else True 
 
 
 def update_database_authentication(args):

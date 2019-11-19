@@ -4,8 +4,6 @@ mimics the structure of our full database.
 """
 
 # Standard Lib
-import update_tables
-from utils import fs, utils
 import os
 import unittest
 import sys
@@ -16,6 +14,8 @@ import sqlite3
 # Local
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/../src/')
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/../../')
+import update_tables
+from utils import fs, utils
 
 
 def add_field(db, sql, tablename, field_name, field_type):
@@ -91,7 +91,7 @@ class DatabaseTest(unittest.TestCase):
 
         self.sql.execute(
             ("SELECT scard FROM UserSubmissions WHERE "
-             " UserSubmissionID = {}'").format(uid))
+             " UserSubmissionID = {}").format(uid))
         result = self.sql.fetchall()[0][0]
         self.assertEquals(self.scard, result)
 
