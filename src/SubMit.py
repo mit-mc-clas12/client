@@ -58,10 +58,18 @@ def client(args):
     cred_file = os.path.normpath(cred_file)
     username, password = database.load_database_credentials(cred_file)
 
+    if args.lite is not None:
+        database_name = args.lite 
+    else:
+        if args.test_database:
+            database_name = "CLAS12TEST"
+        else:
+            database_name = "CLAS12OCR"
+
     use_mysql = False if args.lite else True
     db_conn, sql = database.get_database_connection(
         use_mysql=use_mysql,
-        database_name=args.lite,
+        database_name=database_name,
         username=username,
         password=password,
         hostname='jsubmit.jlab.org'
@@ -201,6 +209,12 @@ def configure_args():
                 "Only if \'whoami\' is \'gemc\'")
     ap.add_argument('-u', '--username', default=None, help=help_str)
 
+    help_str = ("Passing this arguement will instruct"
+                "the client to connect to MySQL:CLAS12TEST"
+                "database, instead of CLAS12OCR (production)")
+    ap.add_argument('--test_database', default=False, help=help_str,
+                    action='store_true')
+    
     # Collect args from the command line and return to user
     return ap.parse_args()
 
