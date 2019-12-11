@@ -6,10 +6,8 @@ mimics the structure of our full database.
 # Standard Lib
 import os
 import unittest
-import sys
-
-# Third Party (?)
 import sqlite3
+import sys
 
 # Local
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/../src/')

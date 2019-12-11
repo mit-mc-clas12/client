@@ -78,9 +78,9 @@ def add_new_user(username, domain_name, db, sql):
     """Add a user to the Users table."""
 
     strn = """
-    INSERT INTO Users(
-        User, domain_name, JoinDateStamp, Total_UserSubmissions,
-        Total_Jobs, Total_Events, Most_Recent_Active_Date
+    INSERT INTO users(
+        user, domain_name, join_date, total_submissions,
+        total_jobs, total_events, most_recent_active_date
     )
     VALUES ("{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}");
     """.format(username, domain_name, utils.gettime(), 0, 0, 0, "Null")
@@ -94,7 +94,7 @@ def add_entry_to_user_submissions(timestamp, db, sql):
     this will auto-increment and assign a UserSubmissionID. """
 
     strn = """
-    INSERT INTO UserSubmissions(timestamp)
+    INSERT INTO submissions(timestamp)
         VALUES ("{0}");""".format(timestamp)
 
     sql.execute(strn)
@@ -109,8 +109,8 @@ def add_entry_to_user_submissions(timestamp, db, sql):
 def add_scard_to_user_submissions(scard, user_submission_id, db, sql):
     """Inject the scard raw into the table UserSubmissions """
     strn = """
-  UPDATE UserSubmissions SET {0} = '{1}'
-      WHERE UserSubmissionID = "{2}";
+  UPDATE submissions SET {0} = '{1}'
+      WHERE user_submission_id = "{2}";
   """.format('scard', scard, user_submission_id)
     sql.execute(strn)
     db.commit()
@@ -183,7 +183,7 @@ def add_gcard_to_gcards_table(gcard_text, usub_id, db, sql):
     db.commit()
 
 
-def add_entry_to_farm_submissions(usub_id, gcard_id, farm_name, db, sql):
+def add_entry_to_farm_submissions(usub_id, farm_name, db, sql):
     """ Create an entry in the FarmSubmissions table for this
     user submission.
 
@@ -196,24 +196,24 @@ def add_entry_to_farm_submissions(usub_id, gcard_id, farm_name, db, sql):
     db - The database for committing changes.
 
     """
+    #strn = """
+    #INSERT INTO submissions(user_submission_id,gcard_id)
+    #    VALUES ({0},{1});
+    #""".format(usub_id, gcard_id)
+    #sql.execute(strn)
+    #db.commit()
+
     strn = """
-    INSERT INTO FarmSubmissions(UserSubmissionID,GcardID)
-        VALUES ({0},{1});
-    """.format(usub_id, gcard_id)
+    UPDATE submissions SET submission_pool = '{0}'
+        WHERE user_submission_id = '{1}';
+    """.format(farm_name, usub_id)
     sql.execute(strn)
     db.commit()
 
     strn = """
-    UPDATE FarmSubmissions SET submission_pool = '{0}'
-        WHERE GcardID = '{1}';
-    """.format(farm_name, gcard_id)
-    sql.execute(strn)
-    db.commit()
-
-    strn = """
-    UPDATE FarmSubmissions SET run_status = 'Not Submitted'
-        WHERE GcardID = '{0}';
-    """.format(gcard_id)
+    UPDATE submissions SET run_status = 'Not Submitted'
+        WHERE user_submission_id = '{0}';
+    """.format(usub_id)
     sql.execute(strn)
     db.commit()
 
@@ -233,11 +233,11 @@ def update_user_information(username, user_id, user_submission_id, db, sql):
     """
 
     update_template = """
-    UPDATE UserSubmissions SET {0} = '{1}'
-        WHERE UserSubmissionID = {2};
+    UPDATE submissions SET {0} = '{1}'
+        WHERE user_submission_id = {2};
     """
-    sql.execute(update_template.format('UserID', user_id, user_submission_id))
+    sql.execute(update_template.format('user_id', user_id, user_submission_id))
     db.commit()
 
-    sql.execute(update_template.format('User', username, user_submission_id))
+    sql.execute(update_template.format('user', username, user_submission_id))
     db.commit()

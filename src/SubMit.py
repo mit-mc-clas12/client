@@ -111,15 +111,16 @@ def client(args):
             exit()
 
     elif scard_type in [3, 4]:
-        logger.debug('Downloading gcards from {}'.format(
-            scard_fields.data['gcards']))
-        gcards = gcard_helper.download_gcards(scard_fields.data['gcards'])
+        #logger.debug('Downloading gcards from {}'.format(
+        #    scard_fields.data['gcards']))
+        #gcards = gcard_helper.download_gcards(scard_fields.data['gcards'])
 
-        if len(gcards) == 0:
-            logger.error('No gcards downloaded from: {0}'.format(
-                scard_fields.data['gcards']
-            ))
-            exit()
+        #if len(gcards) == 0:
+        #    logger.error('No gcards downloaded from: {0}'.format(
+        #        scard_fields.data['gcards']
+        #    ))
+        #    exit()
+        logger.info('Types 3/4 are not supported yet!')
 
     """
     -----------------------------------------------
@@ -135,42 +136,42 @@ def client(args):
     # Setup an entry in the UserSubmissions table for the current submission.
     user_submission_id = update_tables.add_entry_to_user_submissions(
         timestamp, db_conn, sql)
-    logger.debug('UserSubmissionID = {}'.format(user_submission_id))
+    logger.debug('user_submission_id = {}'.format(user_submission_id))
 
     # Update database tables with scard
     update_tables.add_scard_to_user_submissions(scard_fields.raw_text,
                                                 user_submission_id,
                                                 db_conn, sql)
-    update_tables.add_scard_to_scards_table(scard_fields.data,
-                                            user_submission_id, timestamp,
-                                            db_conn, sql)
+    #update_tables.add_scard_to_scards_table(scard_fields.data,
+    #                                        user_submission_id, timestamp,
+    #                                        db_conn, sql)
 
     # Add gcard(s) to tables.
-    if scard_type in [1, 2]:
-        update_tables.add_gcard_to_gcards_table(scard_fields.data['gcards'],
-                                                user_submission_id,
-                                                db_conn, sql)
-    elif scard_type in [3, 4]:
-        for gcard in gcards:
-            update_tables.add_gcard_to_gcards_table(gcard, user_submission_id,
-                                                    db_conn, sql)
+    #if scard_type in [1, 2]:
+    #    update_tables.add_gcard_to_gcards_table(scard_fields.data['gcards'],
+    #                                            user_submission_id,
+    #                                            db_conn, sql)
+    #elif scard_type in [3, 4]:
+    #    for gcard in gcards:
+    #        update_tables.add_gcard_to_gcards_table(gcard, user_submission_id,
+    #                                                db_conn, sql)
 
     user_id = database.get_user_id(username, sql)
-    logger.debug('For User = {}, UserID = {}'.format(username, user_id))
+    logger.debug('For user = {}, user_id = {}'.format(username, user_id))
 
     # Get identification numbers for the gcards in
     # this submission.  Then clean them into values
     # from tuples of form:
     # ((gcard_id1,), (gcard_id2,), ...).
-    gcard_ids = [
-        gcard_id[0] for gcard_id in
-        database.select_by_user_submission_id(
-            usub_id=user_submission_id, fields='GcardID',
-            table='Gcards', sql=sql)
-    ]
+    #gcard_ids = [
+    #    gcard_id[0] for gcard_id in
+    #    database.select_by_user_submission_id(
+    #        usub_id=user_submission_id, fields='gcard_id',
+    #        table='submissions', sql=sql)
+    #]
 
     # Update User and UserID for this submission with key  UserSubmissionID
-    logger.debug('Updating UserSubmissions(User,UserID) = ({},{})'.format(
+    logger.debug('Updating submissions(user,user_id) = ({},{})'.format(
         username, user_id
     ))
     update_tables.update_user_information(username, user_id,
@@ -178,13 +179,19 @@ def client(args):
                                           db_conn, sql)
 
     # Finally, update the FarmSubmissions table
-    for gcard_id in gcard_ids:
-        logger.debug('Inserting GcardID {} into table.'.format(gcard_id))
-        update_tables.add_entry_to_farm_submissions(
-            user_submission_id, gcard_id,
-            scard_fields.data['farm_name'],
-            db_conn, sql
-        )
+    #for gcard_id in gcard_ids:
+    #    logger.debug('Inserting gcard_id {} into table.'.format(gcard_id))
+    #    update_tables.add_entry_to_farm_submissions(
+    #        user_submission_id, gcard_id,
+    #        scard_fields.data['farm_name'],
+    #        db_conn, sql
+    #    )
+
+    update_tables.add_entry_to_farm_submissions(
+        user_submission_id, 
+        scard_fields.data['farm_name'],
+        db_conn, sql
+    )
 
     db_conn.close()
 
