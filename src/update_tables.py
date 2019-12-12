@@ -29,10 +29,10 @@ def add_new_user(username, domain_name, db, sql):
     strn = """
     INSERT INTO users(
         user, domain_name, join_date, total_submissions,
-        total_jobs, total_events, most_recent_active_date
+        total_events
     )
-    VALUES ("{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}");
-    """.format(username, domain_name, utils.gettime(), 0, 0, 0, "Null")
+    VALUES ("{0}", "{1}", "{2}", "{3}", "{4}");
+    """.format(username, domain_name, utils.gettime(), 0, 0)
 
     sql.execute(strn)
     db.commit()
@@ -43,7 +43,7 @@ def add_entry_to_user_submissions(timestamp, db, sql):
     this will auto-increment and assign a UserSubmissionID. """
 
     strn = """
-    INSERT INTO submissions(timestamp)
+    INSERT INTO submissions(client_time)
         VALUES ("{0}");""".format(timestamp)
 
     sql.execute(strn)
@@ -84,12 +84,12 @@ def add_entry_to_farm_submissions(usub_id, farm_name, db, sql):
     #sql.execute(strn)
     #db.commit()
 
-    strn = """
-    UPDATE submissions SET submission_pool = '{0}'
-        WHERE user_submission_id = '{1}';
-    """.format(farm_name, usub_id)
-    sql.execute(strn)
-    db.commit()
+    #strn = """
+    #UPDATE submissions SET submission_pool = '{0}'
+    #    WHERE user_submission_id = '{1}';
+    #""".format(farm_name, usub_id)
+    #sql.execute(strn)
+    #db.commit()
 
     strn = """
     UPDATE submissions SET run_status = 'Not Submitted'
