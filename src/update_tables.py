@@ -10,8 +10,7 @@ lives here.
 
 
 from __future__ import print_function
-from utils import (fs, gcard_helper, get_args,
-                   scard_helper, user_validation, utils)
+
 import argparse
 import os
 import sqlite3
@@ -21,58 +20,8 @@ import time
 import numpy as np
 from subprocess import PIPE, Popen
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))+'/../../')
-# Could also do the following, but then python has to search the
-# sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-
-def update_tables(args, UserSubmissionID, username, timestamp, scard_fields):
-    """ Update tables does the following:
-
-    1) Find the UserID for this User
-    2) Pull the GcardID and the gcard_text down (save in tuple)
-    3) Update the UserSubmissions table with the current
-       UserID and User for the current UserSubmissionID
-    4) For each gcard from (2)
-           (a) Create an entry in the FarmSubmissions table with the
-               UserSubmissionID and GcardID
-           (b) Add the farm name to FarmSubmissions
-           (c) Set FarmSubmissions.run_status to Not Submitted (this
-               ensures that the server will pick up the submission the
-               next time it searches the database for new entries).
-
-    """
-
-    # Grab username and gcard information that just got entered into DB
-    strn = "SELECT UserID FROM Users WHERE User = '{0}';".format(username)
-    userid = utils.db_grab(strn)[0][0]
-    strn = ("SELECT GcardID, gcard_text FROM"
-            " Gcards WHERE UserSubmissionID = {0};").format(
-                UserSubmissionID)
-    gcards = utils.db_grab(strn)
-
-    # Update tables
-    template = ("UPDATE UserSubmissions SET {0} = '{1}'"
-                " WHERE UserSubmissionID = {2};")
-    strn = template.format('UserID', userid, UserSubmissionID)
-    utils.db_write(strn)
-    strn = template.format('User', username, UserSubmissionID)
-    utils.db_write(strn)
-
-    for gcard in gcards:
-        GcardID = gcard[0]
-        strn = ("INSERT INTO FarmSubmissions(UserSubmissionID,GcardID)"
-                " VALUES ({0},{1});").format(
-            UserSubmissionID, GcardID)
-        utils.db_write(strn)
-        strn = ("UPDATE FarmSubmissions SET submission_pool = '{0}'"
-                " WHERE GcardID = '{1}';").format(
-                    scard_fields.data['farm_name'], GcardID)
-        utils.db_write(strn)
-        strn = ("UPDATE FarmSubmissions SET run_status = 'Not Submitted'"
-                " WHERE GcardID = '{0}';").format(
-                    GcardID)
-        utils.db_write(strn)
-
+from utils import (fs, gcard_helper, get_args,
+                   scard_helper, user_validation, utils)
 
 def add_new_user(username, domain_name, db, sql):
     """Add a user to the Users table."""
@@ -114,74 +63,6 @@ def add_scard_to_user_submissions(scard, user_submission_id, db, sql):
   """.format('scard', scard, user_submission_id)
     sql.execute(strn)
     db.commit()
-
-
-def add_scard_to_scards_table(scard_fields, usub_id, timestamp, db, sql):
-    """ Add the scard data dictionary to the database table called
-    Scards.  The Scard is also defined in the UserSubmissions database.
-
-    Inputs:
-    -------
-    scard_fields - dict containing the data (field, value) from the scard
-    usub_id - integer UserSubmissionID generated for this submission
-    timestamp - common timestamp for all operations on this submission
-    db - Database connection.
-    sql - Database cursor for writing.
-
-    To Do:
-    ------
-    - Add logging
-    - Add test (need in memory sqlite database)
-    """
-
-    strn = """
-    INSERT INTO Scards(UserSubmissionID,timestamp)
-        VALUES ("{0}","{1}");
-    """.format(usub_id, timestamp)
-    sql.execute(strn)
-    db.commit()
-
-    update_template = """
-    UPDATE Scards SET {0} = '{1}'
-        WHERE UserSubmissionID = {2}
-    """
-    for field, field_value in scard_fields.items():
-        try:
-            sql.execute(update_template.format(field, field_value, usub_id))
-            db.commit()
-        except Exception as e:
-            print('Trouble inserting {} into {}: {}'.format(
-                field, field_value, e))
-
-
-def add_gcard_to_gcards_table(gcard_text, usub_id, db, sql):
-    """ Create an entry in the Gcards table for this user
-    submission and then write the Gcard text into it.
-
-    Inputs:
-    ------
-    gcard_text - the text of the gcard file
-    usub_id - UserSubmissionID from the UserSubmissions
-              table for this submission
-    sql - The database cursor object for writing.
-    db - The database for committing changes.
-
-    """
-
-    strn = """
-    INSERT INTO Gcards(UserSubmissionID)
-        VALUES ({0});
-    """.format(usub_id)
-    sql.execute(strn)
-    db.commit()
-
-    strn = """
-    UPDATE Gcards SET {0} = "{1}"
-        WHERE UserSubmissionID = {2};
-    """.format('gcard_text', gcard_text, usub_id)
-    sql.execute(strn)
-    db.commit()
-
 
 def add_entry_to_farm_submissions(usub_id, farm_name, db, sql):
     """ Create an entry in the FarmSubmissions table for this
