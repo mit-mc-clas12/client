@@ -111,15 +111,6 @@ def client(args):
             exit()
 
     elif scard_type in [3, 4]:
-        #logger.debug('Downloading gcards from {}'.format(
-        #    scard_fields.data['gcards']))
-        #gcards = gcard_helper.download_gcards(scard_fields.data['gcards'])
-
-        #if len(gcards) == 0:
-        #    logger.error('No gcards downloaded from: {0}'.format(
-        #        scard_fields.data['gcards']
-        #    ))
-        #    exit()
         logger.info('Types 3/4 are not supported yet!')
 
     """
@@ -192,30 +183,9 @@ def configure_args():
     # Collect args from the command line and return to user
     return ap.parse_args()
 
-
-def update_fs_from_args(args):
-    """ Set some filesystem parameters, not sure if
-    this can be changed to something more like a
-    configuration file or function."""
-    fs.DEBUG = getattr(args, fs.debug_long)
-    fs.use_mysql = False if args.lite else True 
-
-
-def update_database_authentication(args):
-    """Temporary function to authenticate while full
-    database authentication is configured. """
-    if not args.lite:
-        with open(fs.dirname + '/../msqlrw.txt', 'r') as myfile:
-            login = myfile.read().replace('\n', ' ')
-            login_params = login.split()
-            fs.mysql_uname = login_params[0]
-            fs.mysql_psswrd = login_params[1]
-
-
 if __name__ == "__main__":
 
     args = configure_args()
-
     if args.scard:
         client(args)
     else:
