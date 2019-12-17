@@ -29,10 +29,10 @@ def add_new_user(username, domain_name, db, sql):
     strn = """
     INSERT INTO users(
         user, domain_name, join_date, total_submissions,
-        total_events
+        total_events, priority
     )
-    VALUES ("{0}", "{1}", "{2}", "{3}", "{4}");
-    """.format(username, domain_name, utils.gettime(), 0, 0)
+    VALUES ("{0}", "{1}", "{2}", "{3}", "{4}", "{5}");
+    """.format(username, domain_name, utils.gettime(), 0, 0, 1)
 
     sql.execute(strn)
     db.commit()
