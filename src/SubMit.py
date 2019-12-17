@@ -104,7 +104,7 @@ def client(args):
         update_tables.add_new_user(username, domain_name, db_conn, sql)
 
     # Setup an entry in the UserSubmissions table for the current submission.
-    user_submission_id = update_tables.add_entry_to_user_submissions(
+    user_submission_id = update_tables.add_timestamp_to_submissions(
         timestamp, db_conn, sql)
     logger.debug('user_submission_id = {}'.format(user_submission_id))
 

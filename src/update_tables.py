@@ -38,7 +38,7 @@ def add_new_user(username, domain_name, db, sql):
     db.commit()
 
 
-def add_entry_to_submissions(timestamp, db, sql):
+def add_timestamp_to_submissions(timestamp, db, sql):
     """ Add a new entry to the UserSubmission table,
     this will auto-increment and assign a UserSubmissionID. """
 
@@ -58,9 +58,9 @@ def add_entry_to_submissions(timestamp, db, sql):
 def add_scard_to_submissions(scard, user_submission_id, db, sql):
     """Inject the scard raw into the table UserSubmissions """
     strn = """
-  UPDATE submissions SET {0} = '{1}'
-      WHERE user_submission_id = "{2}";
-  """.format('scard', scard, user_submission_id)
+    UPDATE submissions SET {0} = '{1}'
+    WHERE user_submission_id = "{2}";
+    """.format('scard', scard, user_submission_id)
     sql.execute(strn)
     db.commit()
 
@@ -77,23 +77,10 @@ def add_entry_to_submissions(usub_id, farm_name, db, sql):
     db - The database for committing changes.
 
     """
-    #strn = """
-    #INSERT INTO submissions(user_submission_id,gcard_id)
-    #    VALUES ({0},{1});
-    #""".format(usub_id, gcard_id)
-    #sql.execute(strn)
-    #db.commit()
-
-    #strn = """
-    #UPDATE submissions SET submission_pool = '{0}'
-    #    WHERE user_submission_id = '{1}';
-    #""".format(farm_name, usub_id)
-    #sql.execute(strn)
-    #db.commit()
 
     strn = """
     UPDATE submissions SET run_status = 'Not Submitted'
-        WHERE user_submission_id = '{0}';
+    WHERE user_submission_id = '{0}';
     """.format(usub_id)
     sql.execute(strn)
     db.commit()
