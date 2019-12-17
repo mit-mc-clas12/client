@@ -38,7 +38,7 @@ def add_new_user(username, domain_name, db, sql):
     db.commit()
 
 
-def add_entry_to_user_submissions(timestamp, db, sql):
+def add_entry_to_submissions(timestamp, db, sql):
     """ Add a new entry to the UserSubmission table,
     this will auto-increment and assign a UserSubmissionID. """
 
@@ -55,7 +55,7 @@ def add_entry_to_user_submissions(timestamp, db, sql):
     return sql.lastrowid
 
 
-def add_scard_to_user_submissions(scard, user_submission_id, db, sql):
+def add_scard_to_submissions(scard, user_submission_id, db, sql):
     """Inject the scard raw into the table UserSubmissions """
     strn = """
   UPDATE submissions SET {0} = '{1}'
@@ -64,7 +64,7 @@ def add_scard_to_user_submissions(scard, user_submission_id, db, sql):
     sql.execute(strn)
     db.commit()
 
-def add_entry_to_farm_submissions(usub_id, farm_name, db, sql):
+def add_entry_to_submissions(usub_id, farm_name, db, sql):
     """ Create an entry in the FarmSubmissions table for this
     user submission.
 

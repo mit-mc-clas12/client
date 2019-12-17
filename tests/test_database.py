@@ -66,18 +66,18 @@ class DatabaseTest(unittest.TestCase):
         """ Test the addition of a user into the database. """
         user = 'TestUser'
         update_tables.add_new_user(user, 'TestDomain', self.db, self.sql)
-        self.sql.execute('SELECT User FROM Users')
+        self.sql.execute('SELECT user FROM users')
         results = self.sql.fetchall()[0][0]
         self.assertEquals(results, user)
 
-    def test_add_entry_to_user_submissions(self):
+    def test_add_entry_to_submissions(self):
         """ Test the addition of an entry into UserSubmissions table. """
         for i in range(10):
             uid = update_tables.add_entry_to_user_submissions(
                 utils.gettime(), self.db, self.sql)
             self.assertEquals(uid, i+1)
 
-    def test_add_scard_to_user_submissions(self):
+    def test_add_scard_to_submissions(self):
         """ Try adding an scard to the user information
         and retrieving it again. """
 
@@ -88,53 +88,10 @@ class DatabaseTest(unittest.TestCase):
             self.scard, uid, self.db, self.sql)
 
         self.sql.execute(
-            ("SELECT scard FROM UserSubmissions WHERE "
-             " UserSubmissionID = {}").format(uid))
+            ("SELECT scard FROM submissions WHERE "
+             " user_submission_id = {}").format(uid))
         result = self.sql.fetchall()[0][0]
         self.assertEquals(self.scard, result)
-
-    def test_add_scard_to_scards_table(self):
-        """ Trying to add the scard to the scards table,
-        this might be removed. """
-
-        # Create a dictionary structure for the scard
-        data = {}
-        for line in self.scard.split('\n'):
-            if line:
-                tokens = line.split()
-
-                if len(tokens) > 1:
-                    field = tokens[0].split(':')[0]
-                    value = tokens[1]
-                    data[field] = value
-
-        # Create a test submission to get user submission id
-        uid = update_tables.add_entry_to_user_submissions(
-            utils.gettime(), self.db, self.sql)
-        update_tables.add_scard_to_scards_table(
-            data, uid, utils.gettime(), self.db, self.sql)
-
-        # Add the field to the scards table, then get it back
-        # and make sure it works
-        for field, value in data.items():
-            self.sql.execute(("SELECT {} FROM Scards WHERE"
-                              " UserSubmissionID = {}").format(field, uid))
-            result = self.sql.fetchall()[0][0]
-            self.assertEquals(result, value)
-
-        def test_add_gcard_to_gcards_table(self):
-            """ Add/retrieve a gcard to test that it is the same and our
-            function successfully inserts. """
-            gcard_text = 'asdijzlkasjdfjxc'
-            uid = update_tables.add_entry_to_user_submissions(
-                utils.gettime(), self.db, self.sql)
-            update_tables.add_gcard_to_gcards_table(
-                gcard_text, uid, self.db, self.sql)
-
-            self.sql.execute(("SELECT gcard_text FROM Gcards WHERE"
-                              " UserSubmissionID = {}").format(uid))
-            result = self.sql.fetchall()[0][0]
-            self.assertEquals(gcard_text, result)
 
 
 if __name__ == "__main__":

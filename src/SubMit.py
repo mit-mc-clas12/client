@@ -52,28 +52,7 @@ def client(args):
 
     logger = utils.configure_logger(args)
 
-    # Setup database connection.
-    cred_file = os.path.dirname(os.path.abspath(__file__)) + \
-                '/../../msqlrw.txt'
-    cred_file = os.path.normpath(cred_file)
-    username, password = database.load_database_credentials(cred_file)
-
-    if args.lite is not None:
-        database_name = args.lite 
-    else:
-        if args.test_database:
-            database_name = "CLAS12TEST"
-        else:
-            database_name = "CLAS12OCR"
-
-    use_mysql = False if args.lite else True
-    db_conn, sql = database.get_database_connection(
-        use_mysql=use_mysql,
-        database_name=database_name,
-        username=username,
-        password=password,
-        hostname='jsubmit.jlab.org'
-    )
+    db_conn, sql = setup_database(args)
     
     # Get basic information related to this user submission.
     # If the username is provided at the CL, that takes
@@ -130,7 +109,7 @@ def client(args):
     logger.debug('user_submission_id = {}'.format(user_submission_id))
 
     # Update database tables with scard
-    update_tables.add_scard_to_user_submissions(scard_fields.raw_text,
+    update_tables.add_scard_to_submissions(scard_fields.raw_text,
                                                 user_submission_id,
                                                 db_conn, sql)
 
@@ -145,7 +124,7 @@ def client(args):
                                           user_submission_id,
                                           db_conn, sql)
 
-    update_tables.add_entry_to_farm_submissions(
+    update_tables.add_entry_to_submissions(
         user_submission_id, 
         scard_fields.data['farm_name'],
         db_conn, sql
@@ -182,6 +161,38 @@ def configure_args():
     
     # Collect args from the command line and return to user
     return ap.parse_args()
+
+def setup_database(args):
+    """ Configure and open the database connection
+    based on user settings. 
+
+    Inputs: 
+    -------
+    - args - argparse args for setting up the 
+    database connection.
+    """
+    cred_file = os.path.dirname(os.path.abspath(__file__)) + \
+                '/../../msqlrw.txt'
+    cred_file = os.path.normpath(cred_file)
+    username, password = database.load_database_credentials(cred_file)
+
+    if args.lite is not None:
+        database_name = args.lite 
+    else:
+        if args.test_database:
+            database_name = "CLAS12TEST"
+        else:
+            database_name = "CLAS12OCR"
+
+    use_mysql = False if args.lite else True
+    db_conn, sql = database.get_database_connection(
+        use_mysql=use_mysql,
+        database_name=database_name,
+        username=username,
+        password=password,
+        hostname='jsubmit.jlab.org'
+    )
+    return db_conn, sql
 
 if __name__ == "__main__":
 
