@@ -73,7 +73,7 @@ class DatabaseTest(unittest.TestCase):
     def test_add_entry_to_submissions(self):
         """ Test the addition of an entry into UserSubmissions table. """
         for i in range(10):
-            uid = update_tables.add_entry_to_user_submissions(
+            uid = update_tables.add_timestamp_to_submissions(
                 utils.gettime(), self.db, self.sql)
             self.assertEquals(uid, i+1)
 
@@ -82,9 +82,9 @@ class DatabaseTest(unittest.TestCase):
         and retrieving it again. """
 
         # Create a test submission to get user submission id
-        uid = update_tables.add_entry_to_user_submissions(
+        uid = update_tables.add_entry_to_submissions(
             utils.gettime(), self.db, self.sql)
-        update_tables.add_scard_to_user_submissions(
+        update_tables.add_scard_to_submissions(
             self.scard, uid, self.db, self.sql)
 
         self.sql.execute(
