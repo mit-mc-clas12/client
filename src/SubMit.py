@@ -101,7 +101,7 @@ def client(args):
 
     if username not in database.get_users(sql):
         logger.debug('Adding new user {} to users'.format(username))
-        update_tables.add_new_user(username, domain_name, db_conn, sql)
+        update_tables.add_new_user(username, db_conn, sql)
 
     # Setup an entry in the UserSubmissions table for the current submission.
     user_submission_id = update_tables.add_timestamp_to_submissions(

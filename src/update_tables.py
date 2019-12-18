@@ -23,15 +23,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))+'/../../')
 from utils import (fs, gcard_helper, get_args,
                    scard_helper, user_validation, utils)
 
-def add_new_user(username, domain_name, db, sql):
+def add_new_user(username, db, sql):
     """Add a user to the Users table."""
 
     strn = """
     INSERT INTO users(
-        user, domain_name, join_date, priority
+        user, join_date, priority
     )
-    VALUES ("{0}", "{1}", "{2}", "{3}", "{4}", "{5}");
-    """.format(username, domain_name, utils.gettime(), 1)
+    VALUES ("{0}", "{1}", "{2}");
+    """.format(username, utils.gettime(), 1)
 
     sql.execute(strn)
     db.commit()
