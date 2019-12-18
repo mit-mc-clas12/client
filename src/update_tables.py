@@ -64,7 +64,8 @@ def add_scard_to_submissions(scard, user_submission_id, db, sql):
     db.commit()
 
 def add_client_ip_to_submissions(ip, user_submission_id, db, sql):
-    """Inject the scard raw into the table UserSubmissions """
+    """ If the SCard contains the client IP, this function
+    is used to add it to the submissions table. """
     strn = """
     UPDATE submissions SET {0} = '{1}'
     WHERE user_submission_id = "{2}";
