@@ -63,6 +63,15 @@ def add_scard_to_submissions(scard, user_submission_id, db, sql):
     sql.execute(strn)
     db.commit()
 
+def add_client_ip_to_submissions(ip, user_submission_id, db, sql):
+    """Inject the scard raw into the table UserSubmissions """
+    strn = """
+    UPDATE submissions SET {0} = '{1}'
+    WHERE user_submission_id = "{2}";
+    """.format('client_ip', ip, user_submission_id)
+    sql.execute(strn)
+    db.commit()
+
 def add_entry_to_submissions(usub_id, farm_name, db, sql):
     """ Create an entry in the FarmSubmissions table for this
     user submission.

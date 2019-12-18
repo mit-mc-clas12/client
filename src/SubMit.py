@@ -108,6 +108,14 @@ def client(args):
         timestamp, db_conn, sql)
     logger.debug('user_submission_id = {}'.format(user_submission_id))
 
+    if 'client_ip' in scard_fields.data:
+        logger.debug('Logging client IP: {}'.format(scard_fields.data['client_ip']))
+        update_tables.add_client_ip_to_submissions(
+            ip=scard_fields.data['client_ip'],
+            user_submission_id=user_submission_id,
+            db=db_conn, sql=sql
+        )
+
     # Update database tables with scard
     update_tables.add_scard_to_submissions(scard_fields.raw_text,
                                                 user_submission_id,
