@@ -2,8 +2,8 @@
 
 
 from __future__ import print_function
-import fs, utils
-import scard_helper_new as scard_helper
+from utils import fs, utils
+from utils import scard_helper_new as scard_helper
 import os
 import sys
 
