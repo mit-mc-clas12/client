@@ -53,7 +53,7 @@ def client(args):
     logger = utils.configure_logger(args)
 
     db_conn, sql = setup_database(args)
-    
+
     # Get basic information related to this user submission.
     # If the username is provided at the CL, that takes
     # priority over inference of the username.
@@ -68,8 +68,10 @@ def client(args):
     # of the scard type.  Open the SCard to validate
     # this submission before starting the database
     # population.
-    scard_fields = scard_handler.open_scard(args.scard)
+    scard_obj = scard_handler.open_scard(args.scard)
     scard_type = scard_handler.get_scard_type(args.scard)
+
+
     logger.debug('Type inference for SCard: {}'.format(scard_type))
 
     # Verify that the gcard exists in our container, try to
@@ -77,13 +79,13 @@ def client(args):
     # fails we do not go forward with submission.
     if scard_type in [1, 2]:
 
-        if scard_fields.data['gcards'] in fs.container_gcards:
+        if scard_obj.gcards in fs.container_gcards:
             logger.debug('Adding (type 1/2) gcard: {}'.format(
-                scard_fields.data['gcards']))
+                scard_obj.gcards))
         else:
             exep = ("The supplied gcard: {0} is supposed to exist in "
                     "the container, but it was not found.").format(
-                        scard_fields.data['gcards']
+                        scard_obj.gcards
                     )
 
             logger.error(exep)
@@ -108,16 +110,16 @@ def client(args):
         timestamp, db_conn, sql)
     logger.debug('user_submission_id = {}'.format(user_submission_id))
 
-    if 'client_ip' in scard_fields.data:
-        logger.debug('Logging client IP: {}'.format(scard_fields.data['client_ip']))
+    if scard_obj.client_ip:
+        logger.debug('Logging client IP: {}'.format(scard_obj.data['client_ip']))
         update_tables.add_client_ip_to_submissions(
-            ip=scard_fields.data['client_ip'],
+            ip=scard_obj.data['client_ip'],
             user_submission_id=user_submission_id,
             db=db_conn, sql=sql
         )
 
     # Update database tables with scard
-    update_tables.add_scard_to_submissions(scard_fields.raw_text,
+    update_tables.add_scard_to_submissions(scard_obj.raw_text,
                                                 user_submission_id,
                                                 db_conn, sql)
 
@@ -133,8 +135,8 @@ def client(args):
                                           db_conn, sql)
 
     update_tables.add_entry_to_submissions(
-        user_submission_id, 
-        scard_fields.data['farm_name'],
+        user_submission_id,
+        scard_obj.farm_name,
         db_conn, sql
     )
 
@@ -166,17 +168,17 @@ def configure_args():
                 "database, instead of CLAS12OCR (production)")
     ap.add_argument('--test_database', default=False, help=help_str,
                     action='store_true')
-    
+
     # Collect args from the command line and return to user
     return ap.parse_args()
 
 def setup_database(args):
     """ Configure and open the database connection
-    based on user settings. 
+    based on user settings.
 
-    Inputs: 
+    Inputs:
     -------
-    - args - argparse args for setting up the 
+    - args - argparse args for setting up the
     database connection.
     """
     cred_file = os.path.dirname(os.path.abspath(__file__)) + \
@@ -185,7 +187,7 @@ def setup_database(args):
     username, password = database.load_database_credentials(cred_file)
 
     if args.lite is not None:
-        database_name = args.lite 
+        database_name = args.lite
     else:
         if args.test_database:
             database_name = "CLAS12TEST"
