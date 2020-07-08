@@ -3,7 +3,7 @@
 
 from __future__ import print_function
 from utils import fs, utils
-from utils import scard_helper_new as scard_helper
+from utils import scard_helper
 import os
 import sys
 
