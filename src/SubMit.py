@@ -94,6 +94,9 @@ def client(args):
     elif scard_type in [3, 4]:
         logger.info('Types 3/4 are not supported yet!')
 
+    else:
+        print('Could not determine type, exiting')
+
     """
     -----------------------------------------------
     From this point and down, all options have been
@@ -111,9 +114,9 @@ def client(args):
     logger.debug('user_submission_id = {}'.format(user_submission_id))
 
     if scard_obj.client_ip:
-        logger.debug('Logging client IP: {}'.format(scard_obj.data['client_ip']))
+        logger.debug('Logging client IP: {}'.format(scard_obj.client_ip))
         update_tables.add_client_ip_to_submissions(
-            ip=scard_obj.data['client_ip'],
+            ip=scard_obj.client_ip,
             user_submission_id=user_submission_id,
             db=db_conn, sql=sql
         )

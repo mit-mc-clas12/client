@@ -1,0 +1,13 @@
+project:  CLAS12                                        
+group:  RGA                   
+farm_name: OSG                                          
+gcards: /jlab/clas12Tags/gcards/clas12-default.gcard    
+generator: clasdis    	                                
+genOptions: --t 10 15                                   
+nevents: 100                                            
+jobs: 1                                                 
+generatorOUT: yes                                       
+gemcEvioOUT: yes                                        
+gemcHipoOUT: yes                                        
+reconstructionOUT: yes                                  
+dstOUT: yes                                             
