@@ -1,0 +1,19 @@
+SCARD: Steering Cards
+---------------------
+
+* Completely defines the conditions of simulations.
+
+* Variables given by json dir structure file xrootd.json:
+
+  configuration, fields, bkmerging
+
+
+
+Notice 7/8/2020:
+
+Removed these 2 entries:
+
+group: RGA
+farm_name: OSG               
+
+

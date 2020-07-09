@@ -99,5 +99,4 @@ def get_scard_type(scard_filename):
         if name in scard_filename:
             scard_type = possible_type
 
-    print(scard_type)
     return scard_type

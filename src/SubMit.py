@@ -71,7 +71,7 @@ def client(args):
     scard_obj = scard_handler.open_scard(args.scard)
     scard_type = scard_handler.get_scard_type(args.scard)
 
-    scard_obj.print()
+    
 
 
     logger.debug('Type inference for SCard: {}'.format(scard_type))
@@ -80,18 +80,8 @@ def client(args):
     # download online gcards for types 3/4.  If any of this
     # fails we do not go forward with submission.
     if scard_type in [1, 2]:
-
-        if scard_obj.gcards in fs.container_gcards:
-            logger.debug('Adding (type 1/2) gcard: {}'.format(
-                scard_obj.gcards))
-        else:
-            exep = ("The supplied gcard: {0} is supposed to exist in "
-                    "the container, but it was not found.").format(
-                        scard_obj.gcards
-                    )
-
-            logger.error(exep)
-            exit()
+        logger.debug('Adding (type 1/2) gcard: {}'.format(
+                scard_obj.configuration))
 
     elif scard_type in [3, 4]:
         logger.info('Types 3/4 are not supported yet!')
@@ -146,6 +136,7 @@ def client(args):
     )
 
     db_conn.close()
+
 
 
 def configure_args():
