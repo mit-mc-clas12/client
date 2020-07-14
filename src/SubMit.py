@@ -177,10 +177,14 @@ def setup_database(args):
     - args - argparse args for setting up the
     database connection.
     """
-    cred_file = os.path.dirname(os.path.abspath(__file__)) + \
-                '/../../msqlrw.txt'
-    cred_file = os.path.normpath(cred_file)
-    username, password = database.load_database_credentials(cred_file)
+
+    if not args.lite:
+        cred_file = os.path.dirname(os.path.abspath(__file__)) + \
+                    '/../../msqlrw.txt'
+        cred_file = os.path.normpath(cred_file)
+        username, password = database.load_database_credentials(cred_file)
+    else:
+        username, password = "none", "none"
 
     if args.lite is not None:
         database_name = args.lite
