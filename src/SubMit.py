@@ -71,7 +71,7 @@ def client(args):
     scard_obj = scard_handler.open_scard(args.scard)
     scard_type = scard_handler.get_scard_type(args.scard)
 
-    
+    scard_obj.printer()
 
 
     logger.debug('Type inference for SCard: {}'.format(scard_type))
