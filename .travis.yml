@@ -1,0 +1,19 @@
+language: python
+python:
+  - "2.7"
+#  - "3.6"      # current default Python on Travis CI
+# command to install dependencies
+services:
+ - mysql
+before_install:
+ - mysql -u root --password="" < test/travis.sql
+ - echo "USE mysql;\nUPDATE user SET password=PASSWORD('devpassword') WHERE user='dev';\n" | mysql -u root
+install:
+#  - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then pip install -r req-py2.txt; fi
+# - pip install -r req-py2.txt; python_version == "2.7"
+ - pip install -r test/requirements.txt
+# - pip install mysql-python
+# command to run tests
+
+#script: python2 testapp.py || python3 testapp.py #For now, can't get python3 to work properly
+script: python2 test/travis_tests.py
