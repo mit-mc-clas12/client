@@ -185,10 +185,10 @@ def setup_database(args):
     else:
         use_mysql = True
         if args.test_database:
-            cred_file_name = '/../../msqlrw_test.txt'
+            cred_file_name = fs.test_db_cred_file
             database_name = fs.MySQL_Test_DB_Name
         else:
-            cred_file_name = '/../../msqlrw.txt'
+            cred_file_name = fs.prod_db_cred_file
             database_name = fs.MySQL_Prod_DB_Name
             
         cred_file_loc = os.path.dirname(os.path.abspath(__file__)) + cred_file_name
@@ -203,7 +203,7 @@ def setup_database(args):
         database_name=database_name,
         username=username,
         password=password,
-        hostname='jsubmit.jlab.org'
+        hostname=fs.db_hostname
     )
     return db_conn, sql
 
