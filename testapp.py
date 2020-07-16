@@ -103,7 +103,7 @@ def run_through_tests(command_sequence):
 		print('Testing command: {0}'.format(command.name))
 		if not err:
 			print('... success')
-			print(out)
+			#print(out)
 		else:
 			print(out)
 			print('... fail, error message:')
