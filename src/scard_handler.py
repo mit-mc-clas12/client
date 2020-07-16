@@ -1,56 +1,102 @@
-#!/usr/bin/env python
-#****************************************************************
-"""
-# Info
-"""
-#****************************************************************
+"""Module for reading the raw SCard, returns an SCard class object. """
+
 
 from __future__ import print_function
-import argparse, os, sqlite3, subprocess, sys, time
-import numpy as np
-from subprocess import PIPE, Popen
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))+'/../../')
-#Could also do the following, but then python has to search the
-#sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from utils import fs, gcard_helper, get_args, scard_helper, user_validation, utils
+from utils import fs, utils
+from utils import scard_helper
+import os
+import sys
+
+# Configure the current script to find utilities.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/../../')
 
 
-def scard_handler(args,UserSubmissionID,timestamp):
-  scard_file = args.scard
+#def scard_handler(args, UserSubmissionID, timestamp):
+#    """Handle the raw scard and return the fields as an scard object.
+#
+#    1) Open the raw scard.
+#    2) Convert it to an instance of scard_class, this runs
+#       the raw file through a parser, catching some errors
+#       and can potentially exit to system.
+#    3) Write the contents of the scard into the UserSubmissions table.
+#    4) Inject the scard into the SCards table (may not be needed,
+#       waiting to see).
+#    5) Return the scard_class instance to the main code.
+#
+#    This function is under construction.
+#    """
+#    scard_file = args.scard
+#
+#    # Load the raw scard file into memory and convert it
+#    # to an instance of scard_class.
+#    with open(scard_file, 'r') as file:
+#        scard = file.read()
+#
+#    scard_fields = scard_helper.scard_class(scard)
+#
+#    # Inject the scard into the UserSubmissions table.
+#    strn = """
+ # UPDATE UserSubmissions SET {0} = '{1}'
+#      WHERE UserSubmissionID = "{2}";""".format(
+#        'scard', scard, UserSubmissionID
+#    )
+#    utils.db_write(strn)
+#    utils.printer(("UserSubmission specifications written to database "
+#                   "with UserSubmissionID {0} from scard {1}").format(
+#        UserSubmissionID, scard_file))
+#
+#    # Inject the scard into the SCards table.
+#    scard_helper.SCard_Entry(UserSubmissionID, timestamp, scard_fields.data)
+#    print(("\t Your scard has been read into the database "
+#           "with UserSubmissionID = {0} at {1} \n").format(
+#        UserSubmissionID, timestamp)
+#    )
+#
+#    return scard_fields
+#
 
-  #Write the text contained in scard.txt to a field in the UserSubmissions table
-  with open(scard_file, 'r') as file: scard = file.read()
-  strn = """UPDATE UserSubmissions SET {0} = '{1}' WHERE UserSubmissionID = "{2}";""".format('scard',scard,UserSubmissionID)
-  utils.db_write(strn)
-  utils.printer("UserSubmission specifications written to database with UserSubmissionID {0}".format(UserSubmissionID))
+def open_scard(scard_filename):
+    """Temporary function name, to provide functionality of
+    the function above. """
+    with open(scard_filename, 'r') as scard_file:
+        scard = scard_file.read()
 
-  #See if user exists already in database; if not, add them
-  with open(scard_file, 'r') as file: scard_text = file.read()
-  scard_fields = scard_helper.scard_class(scard_text)
+    # Get a class instance, this parses the scard.
+    # Append the raw text to the object, it is not
+    # really much memory so I think this is fine.
+    # It becomes useful instead of re-opening the
+    # file multiple times to have the raw text.
+    scard_fields = scard_helper.scard_class(scard)
 
-  #Write scard into scard table fields (This will not be needed in the future)
-  print("\nReading in information from {0}".format(scard_file))
-  utils.printer("Writing SCard to Database")
-  scard_fields.data['group_name'] = scard_fields.data.pop('group') #'group' is a protected word in SQL so we can't use the field title "group"
-  # For more information on protected words in SQL, see https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls?KEY=RSQL_reservedwords
+    scard_fields.raw_text = scard
 
-  if 'http' in scard_fields.data.get('generator'):
-    print("Online repository for generator files specified. On server will download LUND files from:")
-    print("{0}".format(scard_fields.data.get('generator')))
-    scard_fields.data['genExecutable'] = "Null"
-    scard_fields.data['genOutput']     = "Null"
-    scard_fields.data['genOptions']    = "Null"
-    scard_fields.data['nevents']       = "User Lund File Driven"
-    scard_fields.data['jobs']          = "One per User Lund File"
-  else:
-    scard_fields.data['genExecutable'] = fs.genExecutable.get(scard_fields.data.get('generator'))
-    scard_fields.data['genOutput']     = fs.genOutput.get(scard_fields.data.get('generator'))
 
-  scard_helper.SCard_Entry(UserSubmissionID,timestamp,scard_fields.data)
-  print('\t Your scard has been read into the database with UserSubmissionID = {0} at {1} \n'.format(UserSubmissionID,timestamp))
+    return scard_fields
 
-  return scard_fields
 
-if __name__ == "__main__":
-  args = get_args.get_args_client()
-  scard_handler(args,UserSubmissionID,timestamp)
+def get_scard_type(scard_filename):
+    """ Returns the type of scard by inspecting the name
+    of the scard file.  This can be replaced by a function
+    that inspects the contents of the scard and infers the
+    type.  Such a function already exists in server/type_manager.
+    That can be migrated to utilities if needed.  For now
+    this simple approach is okay, because the web_interface
+    always names the scard with the type in the name.
+
+    Input:
+    ------
+    scard_filename - The name of the scard file (str).
+
+    Returns:
+    --------
+    scard_type - The type of the scard, can be None if
+                 none of the allowed types are found in the name.
+    """
+    scard_type = None
+    for possible_type in fs.valid_scard_types:
+
+        name = 'type{0}'.format(possible_type)
+        if name in scard_filename:
+            scard_type = possible_type
+
+    return scard_type

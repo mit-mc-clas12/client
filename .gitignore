@@ -9,3 +9,7 @@
 /server/src/submission_files/condor_files/*.condor
 /server/src/submission_files/run_job_files/*.sh
 /server/src/submission_files/runscript_files/*.sh
+
+# emacs editor files 
+*~ 
+src/*~ 

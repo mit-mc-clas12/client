@@ -1,0 +1,14 @@
+project:  CLAS12
+configuration: rga_fall2018
+generator: clasdis
+genOptions: --t 10 15
+nevents: 100
+jobs: 1
+client_ip: 79.91.42.250
+generatorOUT:
+gemcEvioOUT:
+gemcHipoOUT:
+reconstructionOUT: no
+dstOUT: yes
+fields: tor-1.00_sol-1.00
+bkmerging: 45nA_10604MeV
