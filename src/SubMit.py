@@ -185,8 +185,8 @@ def setup_database(args):
     else:
         use_mysql = True
         if args.test_database:
-            cred_file_name = '/..'+fs.test_db_cred_file #the ../ is needed due to the path difference in client/src and utils/
-            database_name = '/..'+fs.MySQL_Test_DB_Name
+            cred_file_name = '/../..'+fs.test_db_cred_file #the ../ is needed due to the path difference in client/src and utils/
+            database_name = '/../..'+fs.MySQL_Test_DB_Name
         else:
             cred_file_name = fs.prod_db_cred_file
             database_name = fs.MySQL_Prod_DB_Name
