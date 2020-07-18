@@ -32,30 +32,30 @@ def test_function(command):
 
 
 test_folder= os.path.dirname(os.path.abspath(__file__))+'/clas12-test'
-print(test_folder+" is present, not re-cloning")
 if os.path.isdir(test_folder):
 	print('removing previous database file')
 	subprocess.call(['rm','-rf',test_folder])
 if os.path.isdir(test_folder):
 	print('removing previous database file')
 	subprocess.call(['rm','-rf',test_folder])
+else:
+	print(test_folder+" is not present, not deleteing")
 
 
 
-subprocess.call(['mkdir','-p','clas12-test'])
+subprocess.call(['mkdir','-p',test_folder])
+print(test_folder+" is now present")
 
 
-abspath = os.path.abspath(__file__)
-dname = os.path.dirname(abspath)+'/clas12-test'
-os.chdir(dname)
+
+#abspath = os.path.abspath(__file__)
+#dname = os.path.dirname(abspath)+'/clas12-test'
+os.chdir(test_folder)
 
 f = open('msqlrw.txt',"w")
-f.write("dev\n")
-f.write("devpassword")
+f.write("root\n")
+f.write(" ")
 f.close()
-
-#subprocess.call(['cd','clas12-test'])
-
 
 
 folders = ['utils','server','client']
@@ -74,16 +74,28 @@ if os.path.isfile(filename):
 	subprocess.call(['rm',filename])
 
 
-create_mysql_db = command_class('Create SQLite DB',
+create_mysql_db = command_class('Create MySQL DB',
 								['python2', 'utils/create_database.py'],
+								'0')
+
+create_mysql_db_test = command_class('Create MySQL Test DB',
+								['python2', 'utils/create_database.py','--test_database'],
 								'0')
 
 create_sqlite_db = command_class('Create SQLite DB',
 								['python2', 'utils/create_database.py','--lite=utils/CLAS12OCR.db'],
 								'0')
 
-submit_scard_1 = command_class('Submit scard 1 on client',
+submit_scard_1 = command_class('Submit scard 1 on client through sqlite',
 								['python2', 'client/src/SubMit.py','--lite=utils/CLAS12OCR.db','-u=robertej','client/scards/scard_type1.txt'],
+								'0')
+								
+submit_scard_1_mysql = command_class('Submit scard 1 on client through MySQL CLAS12OCR db',
+								['python2', 'client/src/SubMit.py','-u=robertej','client/scards/scard_type1.txt'],
+								'0')
+
+submit_scard_1_mysql_test = command_class('Submit scard 1 on client through MySQL CLAS12TEST db',
+								['python2', 'client/src/SubMit.py','--test_database','-u=robertej','client/scards/scard_type1.txt'],
 								'0')
 
 #submit_scard_2 = command_class('Create scard 2 on client',
@@ -95,13 +107,22 @@ verify_submission_success = command_class('Verify scard submission success',
 								'robertej\n')
 
 
+submit_server_jobs_test_db = command_class('Submit jobs from server on CLAS12TEST',
+								['python2', 'server/src/Submit_UserSubmission.py', '-b','1', '--test_database', '-w', '-s', '-t'],
+								'0')
 
-submit_server_jobs = command_class('Submit jobs from server',
+submit_server_jobs_prod_db = command_class('Submit jobs from server on CLAS12OCR',
+								['python2', 'server/src/Submit_UserSubmission.py', '-b','1', '-w', '-s', '-t'],
+								'0')
+
+submit_server_jobs_sqlite = command_class('Submit jobs from server',
 								['python2', 'server/src/Submit_UserSubmission.py', '-b','1', '--lite=utils/CLAS12OCR.db', '-w', '-s', '-t'],
 								'0')
 
 
-command_sequence = [create_mysql_db,create_sqlite_db, submit_scard_1, verify_submission_success,submit_server_jobs]
+command_sequence = [create_mysql_db,create_mysql_db_test,create_sqlite_db, 
+			submit_scard_1, submit_scard_1_mysql, submit_scard_1_mysql_test,
+			 verify_submission_success,submit_server_jobs_sqlite]
 
 
 def run_through_tests(command_sequence):
