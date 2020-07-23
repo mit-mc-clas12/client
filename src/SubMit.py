@@ -1,4 +1,4 @@
-#!/apps/python/2.7.12/bin/python
+#!/usr/bin/env python
 
 """
 
