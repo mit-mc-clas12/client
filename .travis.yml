@@ -1,3 +1,4 @@
+
 language: python
 python:
   - "2.7"
@@ -7,7 +8,7 @@ services:
  - mysql
 before_install:
  - mysql -u root --password="" < test/travis.sql
- - echo "USE mysql;\nUPDATE user SET password=PASSWORD('devpassword') WHERE user='dev';\n" | mysql -u root
+# - echo "USE mysql;\nUPDATE user SET password=PASSWORD('devpassword') WHERE user='dev';\n" | mysql -u root
 install:
 #  - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then pip install -r req-py2.txt; fi
 # - pip install -r req-py2.txt; python_version == "2.7"
